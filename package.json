@@ -28,7 +28,10 @@
   "author": "army8735",
   "license": "MIT",
   "dependencies": {
-    "homunculus": "^0.4.1"
+    "homunculus": "^0.4.3"
+  },
+  "devDependencies": {
+    "jsdc": "^0.4.8"
   },
   "main": "./index",
   "spm": {
