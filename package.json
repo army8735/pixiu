@@ -1,6 +1,6 @@
 {
   "name": "pixiu",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "A dom number-values collector",
   "maintainers": [
     {
@@ -13,11 +13,6 @@
     "dev": "webpack --config webpack-dev.config.js --colors",
     "dist": "webpack --config webpack-dist.config.js",
     "test": "make test"
-  },
-  "config": {
-    "blanket": {
-      "pattern": []
-    }
   },
   "repository": {
     "type": "git",
@@ -34,11 +29,9 @@
     "@babel/core": "^7.0.0",
     "@babel/preset-env": "^7.0.0",
     "babel-loader": "^8.0.4",
-    "blanket": "^1.1.6",
-    "coveralls": "^2.10.0",
-    "expect.js": "^0.3.1",
-    "mocha": "^1.18.2",
-    "mocha-lcov-reporter": "0.0.1",
+    "chromedriver": "^2.45.0",
+    "nightwatch": "^1.0.17",
+    "selenium-server": "^3.141.59",
     "webpack": "^4.27.1",
     "webpack-cli": "^3.1.2",
     "webstorm-disable-index": "^1.2.0"

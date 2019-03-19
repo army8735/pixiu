@@ -5,6 +5,6 @@ module.exports = Object.assign(config, {
   mode: 'development',
   watchOptions: {
     aggregateTimeout: 300,
-    poll: 1000
+    poll: 1000,
   },
 });

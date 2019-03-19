@@ -90,11 +90,237 @@
 /*!***********************!*\
   !*** ./src/manual.js ***!
   \***********************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _util__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./util */ "./src/util.js");
 
+
+
+var attrName = 'pixiu';
+var interval = 500;
+var listener;
+var timeout;
+var IGNORE = Object.create(null);
+IGNORE.BODY = IGNORE.SCRIPT = IGNORE.STYLE = true;
+
+var callback = function callback(mutationsList) {
+  if (_util__WEBPACK_IMPORTED_MODULE_0__["default"].isFunction(listener)) {
+    var has = false;
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+      for (var _iterator = mutationsList[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+        var mutation = _step.value;
+        var target = mutation.target;
+
+        if (target && !IGNORE[target.nodeName]) {
+          has = true;
+          break;
+        }
+      }
+    } catch (err) {
+      _didIteratorError = true;
+      _iteratorError = err;
+    } finally {
+      try {
+        if (!_iteratorNormalCompletion && _iterator.return != null) {
+          _iterator.return();
+        }
+      } finally {
+        if (_didIteratorError) {
+          throw _iteratorError;
+        }
+      }
+    }
+
+    if (has) {
+      if (timeout) {
+        clearTimeout(timeout);
+      }
+
+      timeout = setTimeout(function () {
+        listener(exec());
+      }, interval);
+    }
+  }
+};
+
+var observer;
+
+function exec() {
+  if (typeof document !== 'undefined') {
+    var list = document.querySelectorAll("[".concat(attrName, "]"));
+    var res = [];
+    var hash = Object.create(null);
+
+    for (var i = 0, len = list.length; i < len; i++) {
+      var dom = list[i]; // 只能包含一个文本节点
+
+      if (dom.childNodes.length !== 1 || dom.firstChild.nodeType !== 3) {
+        continue;
+      }
+
+      var k = _util__WEBPACK_IMPORTED_MODULE_0__["default"].trim(dom.getAttribute(attrName));
+
+      if (k) {
+        var v = _util__WEBPACK_IMPORTED_MODULE_0__["default"].trim(dom.innerText);
+
+        if (v) {
+          // 数组形式不定量
+          if (/\[]$/.test(k)) {
+            if (hash[k]) {
+              if (hash[k].list) {
+                hash[k].v.push(v);
+              } // 之前不是数组覆盖
+              else {
+                  console.warn('pixiu found a duplicate k-v: ' + k + '-' + v);
+                  var arr = [v];
+                  hash[k].list = true;
+                  hash[k].v = arr;
+                  res[hash[k].index] = {
+                    k: k,
+                    v: arr
+                  };
+                }
+            } else {
+              var _arr = [v];
+              hash[k] = {
+                index: res.length,
+                list: true,
+                v: _arr
+              };
+              res.push({
+                k: k,
+                v: _arr
+              });
+            }
+          } // 普通的单个
+          else {
+              // 重复的替换
+              if (hash[k]) {
+                console.warn('pixiu found a duplicate k-v: ' + k + '-' + v);
+                hash[k].list = false;
+                res[hash[k].index] = {
+                  k: k,
+                  v: v
+                };
+              } else {
+                hash[k] = {
+                  index: res.length
+                };
+                res.push({
+                  k: k,
+                  v: v
+                });
+              }
+            }
+        }
+      }
+    }
+
+    return res;
+  }
+}
+
+function addObserver() {
+  if (typeof document !== 'undefined' && typeof MutationObserver !== 'undefined') {
+    if (!observer) {
+      observer = new MutationObserver(function (mutationsList) {
+        callback(mutationsList);
+      });
+    }
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      characterData: true
+    });
+  }
+}
+
+var pixiu = {
+  collect: function collect(key) {
+    if (key !== undefined) {
+      attrName = key;
+    }
+
+    return exec();
+  },
+  observe: function observe(time, cb) {
+    interval = time || interval;
+    interval = Math.max(0, interval);
+    listener = cb;
+    addObserver();
+  },
+  collectAndObserver: function collectAndObserver(key, time, cb) {
+    // 没有key
+    if (_util__WEBPACK_IMPORTED_MODULE_0__["default"].isNumber(key)) {
+      cb = time;
+      time = key;
+      key = undefined;
+    } // 只有cb
+
+
+    if (_util__WEBPACK_IMPORTED_MODULE_0__["default"].isFunction(time)) {
+      cb = time;
+      key = undefined;
+      time = undefined;
+    }
+
+    var res = this.collect(key);
+    this.observe(time, cb);
+    return res;
+  },
+  disconnect: function disconnect() {
+    if (observer) {
+      observer.disconnect();
+    }
+  }
+};
+
+if (typeof window !== 'undefined') {
+  window.pixiu = pixiu;
+}
+
+/* harmony default export */ __webpack_exports__["default"] = (pixiu);
+
+/***/ }),
+
+/***/ "./src/util.js":
+/*!*********************!*\
+  !*** ./src/util.js ***!
+  \*********************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+
+
+var toString = {}.toString;
+
+function isType(type) {
+  return function (obj) {
+    return toString.call(obj) == '[object ' + type + ']';
+  };
+}
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  trim: function trim(s) {
+    return (s || '').replace(/^\s+/, '').replace(/\s+$/, '');
+  },
+  isObject: isType('Object'),
+  isString: isType('String'),
+  isFunction: isType('Function'),
+  isNumber: isType('Number'),
+  isBoolean: isType('Boolean'),
+  isDate: isType('Date')
+});
 
 /***/ })
 
