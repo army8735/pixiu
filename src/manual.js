@@ -121,7 +121,9 @@ function addObserver() {
   }
 }
 
-let pixiu = {
+let pixiu = typeof window !== 'undefined' ? (window.pixiu || {}) : {};
+
+pixiu.manual = {
   collect(key) {
     if(key !== undefined) {
       attrName = key;
@@ -158,7 +160,7 @@ let pixiu = {
   },
 };
 
-if(typeof window !== 'undefined') {
+if(typeof window !== 'undefined' && !window.pixiu) {
   window.pixiu = pixiu;
 }
 

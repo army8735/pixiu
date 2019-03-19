@@ -243,7 +243,8 @@ function addObserver() {
   }
 }
 
-var pixiu = {
+var pixiu = typeof window !== 'undefined' ? window.pixiu || {} : {};
+pixiu.manual = {
   collect: function collect(key) {
     if (key !== undefined) {
       attrName = key;
@@ -283,7 +284,7 @@ var pixiu = {
   }
 };
 
-if (typeof window !== 'undefined') {
+if (typeof window !== 'undefined' && !window.pixiu) {
   window.pixiu = pixiu;
 }
 

@@ -90,11 +90,48 @@
 /*!**********************!*\
   !*** ./src/index.js ***!
   \**********************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _util__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./util */ "./src/util.js");
 
+
+
+
+/***/ }),
+
+/***/ "./src/util.js":
+/*!*********************!*\
+  !*** ./src/util.js ***!
+  \*********************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+
+
+var toString = {}.toString;
+
+function isType(type) {
+  return function (obj) {
+    return toString.call(obj) == '[object ' + type + ']';
+  };
+}
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  trim: function trim(s) {
+    return (s || '').replace(/^\s+/, '').replace(/\s+$/, '');
+  },
+  isObject: isType('Object'),
+  isString: isType('String'),
+  isFunction: isType('Function'),
+  isNumber: isType('Number'),
+  isBoolean: isType('Boolean'),
+  isDate: isType('Date')
+});
 
 /***/ })
 

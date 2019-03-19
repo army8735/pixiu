@@ -1,4 +1,4 @@
 'use strict';
 
-let list = pixiu.collect();
+let list = pixiu.manual.collect();
 document.querySelector('input').value = JSON.stringify(list);
