@@ -1,1 +1,7 @@
-# Created by .gitignore support plugin (hsz.mobi)
+node_modules
+.DS_Store
+.nyc_output
+coverage
+*.log
+.cache
+.idea/
