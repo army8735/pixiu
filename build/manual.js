@@ -178,7 +178,7 @@ function exec() {
                 hash[k].v.push(v);
               } // 之前不是数组覆盖
               else {
-                  console.warn('pixiu found a duplicate k-v: ' + k + '-' + v);
+                  console.warn('pixiu found a duplicate k/v: ' + k + '/' + v);
                   var arr = [v];
                   hash[k].list = true;
                   hash[k].v = arr;
@@ -203,7 +203,7 @@ function exec() {
           else {
               // 重复的替换
               if (hash[k]) {
-                console.warn('pixiu found a duplicate k-v: ' + k + '-' + v);
+                console.warn('pixiu found a duplicate k/v: ' + k + '/' + v);
                 hash[k].list = false;
                 res[hash[k].index] = {
                   k: k,
