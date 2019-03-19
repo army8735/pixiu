@@ -1,7 +1,7 @@
 pixiu
 ====
 
-A safty html compressor
+A dom number-values collector
 
 [![NPM version](https://badge.fury.io/js/pixiu.png)](https://npmjs.org/package/pixiu)
 [![Build Status](https://travis-ci.org/army8735/pixiu.svg?branch=master)](https://travis-ci.org/army8735/pixiu)

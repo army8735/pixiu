@@ -1,0 +1,16 @@
+.yml
+.gitignore
+.gitattributes
+Makefile
+.npmignore
+.spmignore
+.babelrc
+webpack.config.js
+webpack-dev.config.js
+webpack-dist.config.js
+gulpfile.js
+nightwatch.json
+nightwatch.conf.js
+tests/
+demo/
+node_modules/

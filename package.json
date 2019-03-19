@@ -1,7 +1,7 @@
 {
   "name": "pixiu",
   "version": "0.0.1",
-  "description": "A safty html compressor",
+  "description": "A dom number-values collector",
   "maintainers": [
     {
       "name": "army8735",
@@ -9,12 +9,14 @@
     }
   ],
   "scripts": {
+    "build": "webpack --colors",
+    "dev": "webpack --config webpack-dev.config.js --colors",
+    "dist": "webpack --config webpack-dist.config.js",
     "test": "make test"
   },
   "config": {
     "blanket": {
-      "pattern": [
-      ]
+      "pattern": []
     }
   },
   "repository": {
@@ -22,34 +24,28 @@
     "url": "git://github.com/army8735/pixiu.git"
   },
   "keywords": [
-    "html",
-    "compressor"
+    "dom number-values",
+    "collector"
   ],
   "author": "army8735",
   "license": "MIT",
-  "dependencies": {
-    "homunculus": "^0.4.3"
-  },
+  "dependencies": {},
   "devDependencies": {
-    "jsdc": "^0.4.8"
-  },
-  "main": "./index",
-  "spm": {
-    "main": "./index"
-  },
-  "engines": {
-    "node": ">= 0.10.0"
-  },
-  "readmeFilename": "README.md",
-  "devDependencies": {
+    "@babel/core": "^7.0.0",
+    "@babel/preset-env": "^7.0.0",
+    "babel-loader": "^8.0.4",
     "blanket": "^1.1.6",
     "coveralls": "^2.10.0",
     "expect.js": "^0.3.1",
-    "gulp": "^3.8.1",
-    "gulp-clean": "^0.2.4",
-    "gulp-util": "^2.2.14",
     "mocha": "^1.18.2",
     "mocha-lcov-reporter": "0.0.1",
-    "through2": "^0.4.2"
-  }
+    "webpack": "^4.27.1",
+    "webpack-cli": "^3.1.2",
+    "webstorm-disable-index": "^1.2.0"
+  },
+  "main": "./build/index",
+  "engines": {
+    "node": ">= 10.0"
+  },
+  "readmeFilename": "README.md"
 }
