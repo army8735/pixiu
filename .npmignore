@@ -1,4 +1,4 @@
-.yml
+*.yml
 .gitignore
 .gitattributes
 Makefile
@@ -15,3 +15,7 @@ tests/
 demo/
 node_modules/
 reports/
+*.log
+.idea/
+src/
+.DS_Store
