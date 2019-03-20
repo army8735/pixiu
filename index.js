@@ -96,52 +96,126 @@
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _util__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./util */ "./src/util.js");
+/* harmony import */ var _label__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./label */ "./src/label.js");
 
 
 
-var interval = 500;
-var listener;
-var timeout;
-var last;
+
+var interval = 500; // 每次dom变更侦听的延迟时间
+
+var listener; // 变更后的回调
+
+var timeout; // 变更的临时引用
+
+var last; // 上次获取的结果的JSON.stringify暂存
 
 function isNumberString(s) {
-  return /([+-]?\d?.\d*)|([+-]?\d+)/.test(s);
+  return /^(([+-]?\d?.\d*)|([+-]?\d+))$/.test(s);
 }
 
-function traverse(node, parentKey, selCache, res) {
-  for (var i = 0, childNodes = node.childNodes, len = childNodes.length; i < len; i++) {
-    var child = childNodes[i];
+function traverse(node, parentKey, fullCache, selCache, res) {
+  for (var i = 0, children = node.children, len = children.length; i < len; i++) {
+    var child = children[i];
+    var childNodes = child.childNodes;
 
-    if (child.nodeType === 1) {
-      traverse(child, parentKey ? parentKey + ',' + i : String(i), selCache, res);
-    } else if (child.nodeType === 3) {
-      // 只需关注唯一文本节点的情况数字
-      if (len === 1) {
-        var s = _util__WEBPACK_IMPORTED_MODULE_0__["default"].trim(child.nodeValue);
+    if (childNodes.length === 1) {
+      var first = child.firstChild;
+
+      if (first.nodeType === 1) {
+        traverse(child, parentKey ? parentKey + ',' + i : String(i), fullCache, selCache, res);
+      } else if (first.nodeType === 3) {
+        var s = _util__WEBPACK_IMPORTED_MODULE_0__["default"].trim(first.nodeValue); // 深度遍历取得包含唯一数字的dom后，计算dom的完整selector
 
         if (isNumberString(s)) {
-          console.warn(child.parentNode, child.data, child.nodeValue, parentKey);
-          var sel = getSel(child.parentNode, parentKey, selCache);
+          var sel = getFullSel(child, i, parentKey, fullCache, selCache);
           res.push({
             k: sel,
             v: s
           });
         }
       }
+    } else if (childNodes.length > 1) {
+      traverse(child, parentKey ? parentKey + ',' + i : String(i), fullCache, selCache, res);
     }
   }
 }
 
-function getSel(parentNode, parentKey, selCache) {
-  var ks = parentKey.split(',');
+function getFullSel(node, index, parentKey, fullCache, selCache) {
+  // 有id可以提前直接返回
+  if (node.id) {
+    return '#' + node.id;
+  }
 
-  for (var i = 0, len = ks.length; i < len - 1; i++) {}
+  var sel = '';
+
+  if (parentKey) {
+    var ks = parentKey.split(',');
+    var parent = document.body;
+    var pk = ''; // 先计算靠前的和靠根的为后续做缓存，动态规划
+
+    for (var i = 0, len = ks.length; i < len; i++) {
+      var k = ks[i];
+      var s = getLevelSel(parent.children[k], parent, pk, fullCache, selCache);
+      sel += s + '>';
+      pk += ',' + k;
+      parent = parent.children[k];
+    }
+  } // 最后一位本身的
+
+
+  sel += getLevelSel(node, node.parentNode, parentKey, fullCache, selCache);
+  return sel;
+}
+
+function getLevelSel(node, parent, parentKey, fullCache, selCache) {
+  var selList = [];
+
+  for (var i = 0, children = parent.children, len = children.length; i < len; i++) {
+    var child = children[i];
+    var key = parentKey ? parentKey + ',' + i : String(i);
+    var sel = getNodeSel(child, key, selCache); // 计算得出sel/{节点在兄弟层的索引类似nth-child}.{sel在兄弟层的索引类似nth-of-type}
+
+    if (child === node) {
+      var count = 0;
+
+      for (var j = 0, _len = selList.length; j < _len; j++) {
+        if (selList[j] === sel) {
+          count++;
+        }
+      }
+
+      return sel + '/' + i + '.' + count;
+    } else {
+      selList.push(sel);
+    }
+  }
+}
+
+function getNodeSel(node, key, selCache) {
+  // 依旧缓存，只要有2个以上的节点计算必然会出现重复，因为每个节点都要计算之前的兄弟以及递归父节点的之前的兄弟
+  if (selCache[key]) {
+    return selCache[key];
+  }
+
+  var sel = _label__WEBPACK_IMPORTED_MODULE_1__["default"].encode(node.nodeName);
+
+  if (node.id) {
+    return selCache[key] = '#' + node.id;
+  }
+
+  var cn = _util__WEBPACK_IMPORTED_MODULE_0__["default"].trim(Array.prototype.join.call(node.classList, '.'));
+
+  if (cn) {
+    sel += '.' + cn;
+  }
+
+  return selCache[key] = sel;
 }
 
 function exec() {
   if (typeof document !== 'undefined') {
     var res = [];
-    traverse(document.body, '', Object.create(null), res);
+    traverse(document.body, '', Object.create(null), Object.create(null), res);
     return res;
   }
 }
@@ -176,6 +250,51 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+
+/***/ }),
+
+/***/ "./src/label.js":
+/*!**********************!*\
+  !*** ./src/label.js ***!
+  \**********************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+
+
+var hash = Object.create(null);
+hash.DIV = '0';
+hash.P = '1';
+hash.A = '2';
+hash.SPAN = '3';
+hash.UL = '4';
+hash.LI = '5';
+hash.OL = '6';
+hash.DL = '7';
+hash.DD = '8';
+hash.DT = '9';
+hash.STRONG = 'A';
+hash.B = 'B';
+hash.SPAN = 'C';
+hash.TABLE = 'D';
+hash.TH = 'E';
+hash.TD = 'F';
+hash.PRE = 'G';
+hash.INPUT = 'H';
+hash.SELECT = 'I';
+hash.OPTION = 'J';
+hash.TEXTAREA = 'K';
+hash.FONT = 'L';
+hash.EM = 'M';
+hash.SMALL = 'M';
+/* harmony default export */ __webpack_exports__["default"] = ({
+  encode: function encode(s) {
+    return hash[s] || s;
+  },
+  decode: function decode(s) {}
+});
 
 /***/ }),
 
