@@ -103,6 +103,7 @@ var attrName = 'pixiu';
 var interval = 500;
 var listener;
 var timeout;
+var last;
 var IGNORE = Object.create(null);
 IGNORE.BODY = IGNORE.SCRIPT = IGNORE.STYLE = true;
 
@@ -141,10 +142,18 @@ var callback = function callback(mutationsList) {
     if (has) {
       if (timeout) {
         clearTimeout(timeout);
-      }
+        timeout = null;
+      } // 间隔时间可能为0，但是由于MutationObserver本身是异步，所以达不到同步效果
+
 
       timeout = setTimeout(function () {
-        listener(exec());
+        var res = exec();
+        var s = JSON.stringify(res);
+
+        if (last !== s) {
+          last = s;
+          listener(res, s);
+        }
       }, interval);
     }
   }
@@ -252,13 +261,21 @@ pixiu.manual = {
 
     return exec();
   },
-  observe: function observe(time, cb) {
-    interval = time || interval;
+  observe: function observe(key, time, cb) {
+    // 没有key
+    if (_util__WEBPACK_IMPORTED_MODULE_0__["default"].isNumber(key)) {
+      cb = time;
+      time = key;
+    } else {
+      attrName = key;
+    }
+
+    interval = time;
     interval = Math.max(0, interval);
     listener = cb;
     addObserver();
   },
-  collectAndObserver: function collectAndObserver(key, time, cb) {
+  collectAndObserve: function collectAndObserve(key, time, cb) {
     // 没有key
     if (_util__WEBPACK_IMPORTED_MODULE_0__["default"].isNumber(key)) {
       cb = time;

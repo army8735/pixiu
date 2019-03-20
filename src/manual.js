@@ -6,6 +6,7 @@ let attrName = 'pixiu';
 let interval = 500;
 let listener;
 let timeout;
+let last;
 
 const IGNORE = Object.create(null);
 IGNORE.BODY = IGNORE.SCRIPT = IGNORE.STYLE = true;
@@ -23,9 +24,16 @@ let callback = function(mutationsList) {
     if(has) {
       if(timeout) {
         clearTimeout(timeout);
+        timeout = null;
       }
+      // 间隔时间可能为0，但是由于MutationObserver本身是异步，所以达不到同步效果
       timeout = setTimeout(function() {
-        listener(exec());
+        let res = exec();
+        let s = JSON.stringify(res);
+        if(last !== s) {
+          last = s;
+          listener(res, s);
+        }
       }, interval);
     }
   }
@@ -130,13 +138,21 @@ pixiu.manual = {
     }
     return exec();
   },
-  observe(time, cb) {
-    interval = time || interval;
+  observe(key, time, cb) {
+    // 没有key
+    if(util.isNumber(key)) {
+      cb = time;
+      time = key;
+    }
+    else {
+      attrName = key;
+    }
+    interval = time;
     interval = Math.max(0, interval);
     listener = cb;
     addObserver();
   },
-  collectAndObserver(key, time, cb) {
+  collectAndObserve(key, time, cb) {
     // 没有key
     if(util.isNumber(key)) {
       cb = time;

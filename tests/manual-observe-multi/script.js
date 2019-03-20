@@ -1,6 +1,6 @@
 'use strict';
 
-pixiu.manual.collectAndObserver(0, function(list) {
+pixiu.manual.collectAndObserve(1, function(list) {
   document.querySelector('input').value = JSON.stringify(list);
 });
 
