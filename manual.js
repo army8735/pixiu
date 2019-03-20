@@ -99,11 +99,16 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-var attrName = 'pixiu';
-var interval = 500;
-var listener;
-var timeout;
-var last;
+var attrName = 'pixiu'; // 属性标签标识
+
+var interval = 500; // 每次dom变更侦听的延迟时间
+
+var listener; // 变更后的回调
+
+var timeout; // 变更的临时引用
+
+var last; // 上次获取的结果的JSON.stringify暂存
+
 var IGNORE = Object.create(null);
 IGNORE.BODY = IGNORE.SCRIPT = IGNORE.STYLE = true;
 
@@ -152,7 +157,10 @@ var callback = function callback(mutationsList) {
 
         if (last !== s) {
           last = s;
-          listener(res, s);
+
+          if (s) {
+            listener(res, s);
+          }
         }
       }, interval);
     }
@@ -324,7 +332,7 @@ var toString = {}.toString;
 
 function isType(type) {
   return function (obj) {
-    return toString.call(obj) == '[object ' + type + ']';
+    return toString.call(obj) === '[object ' + type + ']';
   };
 }
 

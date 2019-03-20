@@ -5,11 +5,12 @@ module.exports = {
   devtool: 'cheap-source-map',
   entry: {
     'index': './src/index.js',
-    'manual': './src/manual.js'
+    'manual': './src/manual.js',
+    'auto': './src/auto',
   },
   output: {
     filename: '[name].js',
-    path: path.resolve(__dirname, 'build/'),
+    path: path.resolve(__dirname),
   },
   module: {
     rules: [

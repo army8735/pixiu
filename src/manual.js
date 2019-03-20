@@ -2,11 +2,11 @@
 
 import util from './util';
 
-let attrName = 'pixiu';
-let interval = 500;
-let listener;
-let timeout;
-let last;
+let attrName = 'pixiu'; // 属性标签标识
+let interval = 500; // 每次dom变更侦听的延迟时间
+let listener; // 变更后的回调
+let timeout; // 变更的临时引用
+let last; // 上次获取的结果的JSON.stringify暂存
 
 const IGNORE = Object.create(null);
 IGNORE.BODY = IGNORE.SCRIPT = IGNORE.STYLE = true;
@@ -32,7 +32,9 @@ let callback = function(mutationsList) {
         let s = JSON.stringify(res);
         if(last !== s) {
           last = s;
-          listener(res, s);
+          if(s) {
+            listener(res, s);
+          }
         }
       }, interval);
     }

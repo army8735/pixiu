@@ -81,16 +81,16 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = "./src/index.js");
+/******/ 	return __webpack_require__(__webpack_require__.s = "./src/auto.js");
 /******/ })
 /************************************************************************/
 /******/ ({
 
-/***/ "./src/index.js":
-/*!**********************!*\
-  !*** ./src/index.js ***!
-  \**********************/
-/*! no exports provided */
+/***/ "./src/auto.js":
+/*!*********************!*\
+  !*** ./src/auto.js ***!
+  \*********************/
+/*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -99,6 +99,65 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+var interval = 500;
+var listener;
+var timeout;
+var last;
+
+function isNumberString(s) {
+  return /([+-]?\d?.\d*)|([+-]?\d+)/.test(s);
+}
+
+function traverse(node, parentKey, selCache, res) {
+  for (var i = 0, childNodes = node.childNodes, len = childNodes.length; i < len; i++) {
+    var child = childNodes[i];
+
+    if (child.nodeType === 1) {
+      traverse(child, parentKey ? parentKey + ',' + i : String(i), selCache, res);
+    } else if (child.nodeType === 3) {
+      // 只需关注唯一文本节点的情况数字
+      if (len === 1) {
+        var s = _util__WEBPACK_IMPORTED_MODULE_0__["default"].trim(child.nodeValue);
+
+        if (isNumberString(s)) {
+          console.warn(child.parentNode, child.data, child.nodeValue, parentKey);
+          var sel = getSel(child.parentNode, parentKey, selCache);
+          res.push({
+            k: sel,
+            v: s
+          });
+        }
+      }
+    }
+  }
+}
+
+function getSel(parentNode, parentKey, selCache) {
+  var ks = parentKey.split(',');
+
+  for (var i = 0, len = ks.length; i < len - 1; i++) {}
+}
+
+function exec() {
+  if (typeof document !== 'undefined') {
+    var res = [];
+    traverse(document.body, '', Object.create(null), res);
+    return res;
+  }
+}
+
+var pixiu = typeof window !== 'undefined' ? window.pixiu || {} : {};
+pixiu.auto = {
+  collect: function collect() {
+    return exec();
+  }
+};
+
+if (typeof window !== 'undefined' && !window.pixiu) {
+  window.pixiu = pixiu;
+}
+
+/* harmony default export */ __webpack_exports__["default"] = (pixiu);
 
 /***/ }),
 
@@ -117,7 +176,7 @@ var toString = {}.toString;
 
 function isType(type) {
   return function (obj) {
-    return toString.call(obj) == '[object ' + type + ']';
+    return toString.call(obj) === '[object ' + type + ']';
   };
 }
 
@@ -136,4 +195,4 @@ function isType(type) {
 /***/ })
 
 /******/ });
-//# sourceMappingURL=index.js.map
+//# sourceMappingURL=auto.js.map

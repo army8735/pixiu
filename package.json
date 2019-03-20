@@ -36,7 +36,7 @@
     "webpack-cli": "^3.1.2",
     "webstorm-disable-index": "^1.2.0"
   },
-  "main": "./build/index",
+  "main": "./index",
   "engines": {
     "node": ">= 10.0"
   },
