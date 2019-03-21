@@ -11,37 +11,6 @@ let last; // 上次获取的结果的JSON.stringify暂存
 const IGNORE = Object.create(null);
 IGNORE.BODY = IGNORE.SCRIPT = IGNORE.STYLE = true;
 
-let callback = function(mutationsList) {
-  if(util.isFunction(listener)) {
-    let has = false;
-    for(let mutation of mutationsList) {
-      let target = mutation.target;
-      if(target && !IGNORE[target.nodeName]) {
-        has = true;
-        break;
-      }
-    }
-    if(has) {
-      if(timeout) {
-        clearTimeout(timeout);
-        timeout = null;
-      }
-      // 间隔时间可能为0，但是由于MutationObserver本身是异步，所以达不到同步效果
-      timeout = setTimeout(function() {
-        let res = exec();
-        let s = JSON.stringify(res);
-        if(last !== s) {
-          last = s;
-          if(s) {
-            listener(res, s);
-          }
-        }
-      }, interval);
-    }
-  }
-};
-let observer;
-
 function exec() {
   if(typeof document !== 'undefined') {
     let list = document.querySelectorAll(`[${attrName}]`);
@@ -116,6 +85,37 @@ function exec() {
   }
 }
 
+let callback = function(mutationsList) {
+  if(util.isFunction(listener)) {
+    let has = false;
+    for(let mutation of mutationsList) {
+      let target = mutation.target;
+      if(target && !IGNORE[target.nodeName]) {
+        has = true;
+        break;
+      }
+    }
+    if(has) {
+      if(timeout) {
+        clearTimeout(timeout);
+        timeout = null;
+      }
+      // 间隔时间可能为0，但是由于MutationObserver本身是异步，所以达不到同步效果
+      timeout = setTimeout(function() {
+        let res = exec();
+        let s = JSON.stringify(res);
+        if(last !== s) {
+          last = s;
+          if(s) {
+            listener(res, s);
+          }
+        }
+      }, interval);
+    }
+  }
+};
+
+let observer;
 function addObserver() {
   if(typeof document !== 'undefined' && typeof MutationObserver !== 'undefined') {
     if(!observer) {

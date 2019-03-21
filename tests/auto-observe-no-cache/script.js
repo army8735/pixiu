@@ -3,7 +3,7 @@
 let sels = ['#a', '#b'];
 let index = 0;
 
-pixiu.manual.observe(0, function(list, str) {
+pixiu.auto.observe(0, function(list, str) {
   document.querySelector(sels[index++]).value = str;
 });
 

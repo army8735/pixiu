@@ -112,63 +112,6 @@ var last; // 上次获取的结果的JSON.stringify暂存
 var IGNORE = Object.create(null);
 IGNORE.BODY = IGNORE.SCRIPT = IGNORE.STYLE = true;
 
-var callback = function callback(mutationsList) {
-  if (_util__WEBPACK_IMPORTED_MODULE_0__["default"].isFunction(listener)) {
-    var has = false;
-    var _iteratorNormalCompletion = true;
-    var _didIteratorError = false;
-    var _iteratorError = undefined;
-
-    try {
-      for (var _iterator = mutationsList[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-        var mutation = _step.value;
-        var target = mutation.target;
-
-        if (target && !IGNORE[target.nodeName]) {
-          has = true;
-          break;
-        }
-      }
-    } catch (err) {
-      _didIteratorError = true;
-      _iteratorError = err;
-    } finally {
-      try {
-        if (!_iteratorNormalCompletion && _iterator.return != null) {
-          _iterator.return();
-        }
-      } finally {
-        if (_didIteratorError) {
-          throw _iteratorError;
-        }
-      }
-    }
-
-    if (has) {
-      if (timeout) {
-        clearTimeout(timeout);
-        timeout = null;
-      } // 间隔时间可能为0，但是由于MutationObserver本身是异步，所以达不到同步效果
-
-
-      timeout = setTimeout(function () {
-        var res = exec();
-        var s = JSON.stringify(res);
-
-        if (last !== s) {
-          last = s;
-
-          if (s) {
-            listener(res, s);
-          }
-        }
-      }, interval);
-    }
-  }
-};
-
-var observer;
-
 function exec() {
   if (typeof document !== 'undefined') {
     var list = document.querySelectorAll("[".concat(attrName, "]"));
@@ -243,6 +186,63 @@ function exec() {
     return res;
   }
 }
+
+var callback = function callback(mutationsList) {
+  if (_util__WEBPACK_IMPORTED_MODULE_0__["default"].isFunction(listener)) {
+    var has = false;
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+      for (var _iterator = mutationsList[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+        var mutation = _step.value;
+        var target = mutation.target;
+
+        if (target && !IGNORE[target.nodeName]) {
+          has = true;
+          break;
+        }
+      }
+    } catch (err) {
+      _didIteratorError = true;
+      _iteratorError = err;
+    } finally {
+      try {
+        if (!_iteratorNormalCompletion && _iterator.return != null) {
+          _iterator.return();
+        }
+      } finally {
+        if (_didIteratorError) {
+          throw _iteratorError;
+        }
+      }
+    }
+
+    if (has) {
+      if (timeout) {
+        clearTimeout(timeout);
+        timeout = null;
+      } // 间隔时间可能为0，但是由于MutationObserver本身是异步，所以达不到同步效果
+
+
+      timeout = setTimeout(function () {
+        var res = exec();
+        var s = JSON.stringify(res);
+
+        if (last !== s) {
+          last = s;
+
+          if (s) {
+            listener(res, s);
+          }
+        }
+      }, interval);
+    }
+  }
+};
+
+var observer;
 
 function addObserver() {
   if (typeof document !== 'undefined' && typeof MutationObserver !== 'undefined') {

@@ -109,6 +109,9 @@ var timeout; // 变更的临时引用
 
 var last; // 上次获取的结果的JSON.stringify暂存
 
+var IGNORE = Object.create(null);
+IGNORE.BODY = IGNORE.SCRIPT = IGNORE.STYLE = true;
+
 function isNumberString(s) {
   return /^(([+-]?\d?.\d*)|([+-]?\d+))$/.test(s);
 }
@@ -155,15 +158,29 @@ function getFullSel(node, index, parentKey, fullCache, selCache) {
 
     for (var i = 0, len = ks.length; i < len; i++) {
       var k = ks[i];
-      var s = getLevelSel(parent.children[k], parent, pk, fullCache, selCache);
-      sel += s + '>';
+
+      var _s = getLevelSel(parent.children[k], parent, pk, fullCache, selCache);
+
+      if (_s.charAt(0) === '#') {
+        sel = _s + '>';
+      } else {
+        sel += _s + '>';
+      }
+
       pk += ',' + k;
       parent = parent.children[k];
     }
   } // 最后一位本身的
 
 
-  sel += getLevelSel(node, node.parentNode, parentKey, fullCache, selCache);
+  var s = getLevelSel(node, node.parentNode, parentKey, fullCache, selCache);
+
+  if (s.charAt(0) === '#') {
+    sel = s;
+  } else {
+    sel += s;
+  }
+
   return sel;
 }
 
@@ -220,10 +237,105 @@ function exec() {
   }
 }
 
+var callback = function callback(mutationsList) {
+  if (_util__WEBPACK_IMPORTED_MODULE_0__["default"].isFunction(listener)) {
+    var has = false;
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+      for (var _iterator = mutationsList[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+        var mutation = _step.value;
+        var target = mutation.target;
+
+        if (target && !IGNORE[target.nodeName]) {
+          has = true;
+          break;
+        }
+      }
+    } catch (err) {
+      _didIteratorError = true;
+      _iteratorError = err;
+    } finally {
+      try {
+        if (!_iteratorNormalCompletion && _iterator.return != null) {
+          _iterator.return();
+        }
+      } finally {
+        if (_didIteratorError) {
+          throw _iteratorError;
+        }
+      }
+    }
+
+    if (has) {
+      if (timeout) {
+        clearTimeout(timeout);
+        timeout = null;
+      } // 间隔时间可能为0，但是由于MutationObserver本身是异步，所以达不到同步效果
+
+
+      timeout = setTimeout(function () {
+        var res = exec();
+        var s = JSON.stringify(res);
+
+        if (last !== s) {
+          last = s;
+
+          if (s) {
+            listener(res, s);
+          }
+        }
+      }, interval);
+    }
+  }
+};
+
+var observer;
+
+function addObserver() {
+  if (typeof document !== 'undefined' && typeof MutationObserver !== 'undefined') {
+    if (!observer) {
+      observer = new MutationObserver(function (mutationsList) {
+        callback(mutationsList);
+      });
+    }
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      characterData: true
+    });
+  }
+}
+
 var pixiu = typeof window !== 'undefined' ? window.pixiu || {} : {};
 pixiu.auto = {
   collect: function collect() {
     return exec();
+  },
+  observe: function observe(time, cb) {
+    interval = time;
+    interval = Math.max(0, interval);
+    listener = cb;
+    addObserver();
+  },
+  collectAndObserve: function collectAndObserve(time, cb) {
+    // 只有cb
+    if (_util__WEBPACK_IMPORTED_MODULE_0__["default"].isFunction(time)) {
+      cb = time;
+      time = undefined;
+    }
+
+    var res = this.collect();
+    this.observe(time, cb);
+    return res;
+  },
+  disconnect: function disconnect() {
+    if (observer) {
+      observer.disconnect();
+    }
   }
 };
 

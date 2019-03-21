@@ -8,6 +8,9 @@ let listener; // 变更后的回调
 let timeout; // 变更的临时引用
 let last; // 上次获取的结果的JSON.stringify暂存
 
+const IGNORE = Object.create(null);
+IGNORE.BODY = IGNORE.SCRIPT = IGNORE.STYLE = true;
+
 function isNumberString(s) {
   return /^(([+-]?\d?.\d*)|([+-]?\d+))$/.test(s);
 }
@@ -53,13 +56,24 @@ function getFullSel(node, index, parentKey, fullCache, selCache) {
     for(let i = 0, len = ks.length; i < len; i++) {
       let k = ks[i];
       let s = getLevelSel(parent.children[k], parent, pk, fullCache, selCache);
-      sel += s + '>';
+      if(s.charAt(0) === '#') {
+        sel = s + '>';
+      }
+      else {
+        sel += s + '>';
+      }
       pk += ',' + k;
       parent = parent.children[k];
     }
   }
   // 最后一位本身的
-  sel += getLevelSel(node, node.parentNode, parentKey, fullCache, selCache);
+  let s = getLevelSel(node, node.parentNode, parentKey, fullCache, selCache);
+  if(s.charAt(0) === '#') {
+    sel = s;
+  }
+  else {
+    sel += s;
+  }
   return sel;
 }
 
@@ -109,11 +123,79 @@ function exec() {
   }
 }
 
+
+let callback = function(mutationsList) {
+  if(util.isFunction(listener)) {
+    let has = false;
+    for(let mutation of mutationsList) {
+      let target = mutation.target;
+      if(target && !IGNORE[target.nodeName]) {
+        has = true;
+        break;
+      }
+    }
+    if(has) {
+      if(timeout) {
+        clearTimeout(timeout);
+        timeout = null;
+      }
+      // 间隔时间可能为0，但是由于MutationObserver本身是异步，所以达不到同步效果
+      timeout = setTimeout(function() {
+        let res = exec();
+        let s = JSON.stringify(res);
+        if(last !== s) {
+          last = s;
+          if(s) {
+            listener(res, s);
+          }
+        }
+      }, interval);
+    }
+  }
+};
+
+let observer;
+function addObserver() {
+  if(typeof document !== 'undefined' && typeof MutationObserver !== 'undefined') {
+    if(!observer) {
+      observer = new MutationObserver(function(mutationsList) {
+        callback(mutationsList);
+      });
+    }
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+    });
+  }
+}
+
 let pixiu = typeof window !== 'undefined' ? (window.pixiu || {}) : {};
 
 pixiu.auto = {
   collect() {
     return exec();
+  },
+  observe(time, cb) {
+    interval = time;
+    interval = Math.max(0, interval);
+    listener = cb;
+    addObserver();
+  },
+  collectAndObserve(time, cb) {
+    // 只有cb
+    if(util.isFunction(time)) {
+      cb = time;
+      time = undefined;
+    }
+    let res = this.collect();
+    this.observe(time, cb);
+    return res;
+  },
+  disconnect() {
+    if(observer) {
+      observer.disconnect();
+    }
   },
 };
 
