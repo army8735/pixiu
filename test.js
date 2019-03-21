@@ -81,10 +81,307 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = "./src/manual.js");
+/******/ 	return __webpack_require__(__webpack_require__.s = "./src/test.js");
 /******/ })
 /************************************************************************/
 /******/ ({
+
+/***/ "./src/auto.js":
+/*!*********************!*\
+  !*** ./src/auto.js ***!
+  \*********************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var util = __webpack_require__(/*! ./util */ "./src/util.js");
+
+var label = __webpack_require__(/*! ./label */ "./src/label.js");
+
+var interval = 500; // 每次dom变更侦听的延迟时间
+
+var listener; // 变更后的回调
+
+var timeout; // 变更的临时引用
+
+var last; // 上次获取的结果的JSON.stringify暂存
+
+var IGNORE = Object.create(null);
+IGNORE.BODY = IGNORE.SCRIPT = IGNORE.STYLE = true;
+
+function isNumberString(s) {
+  return /^(([+-]?\d?.\d*)|([+-]?\d+))$/.test(s);
+}
+
+function traverse(node, parentKey, fullCache, selCache, res) {
+  for (var i = 0, children = node.children, len = children.length; i < len; i++) {
+    var child = children[i];
+    var childNodes = child.childNodes;
+
+    if (childNodes.length === 1) {
+      var first = child.firstChild;
+
+      if (first.nodeType === 1) {
+        traverse(child, parentKey ? parentKey + ',' + i : String(i), fullCache, selCache, res);
+      } else if (first.nodeType === 3) {
+        var s = util.trim(first.nodeValue); // 深度遍历取得包含唯一数字的dom后，计算dom的完整selector
+
+        if (isNumberString(s)) {
+          var sel = getFullSel(child, i, parentKey, fullCache, selCache);
+          res.push({
+            k: sel,
+            v: s
+          });
+        }
+      }
+    } else if (childNodes.length > 1) {
+      traverse(child, parentKey ? parentKey + ',' + i : String(i), fullCache, selCache, res);
+    }
+  }
+}
+
+function getFullSel(node, index, parentKey, fullCache, selCache) {
+  // 有id可以提前直接返回
+  if (node.id) {
+    return '#' + node.id;
+  }
+
+  var sel = '';
+
+  if (parentKey) {
+    var ks = parentKey.split(',');
+    var parent = document.body;
+    var pk = ''; // 先计算靠前的和靠根的为后续做缓存，动态规划
+
+    for (var i = 0, len = ks.length; i < len; i++) {
+      var k = ks[i];
+
+      var _s = getLevelSel(parent.children[k], parent, pk, fullCache, selCache);
+
+      if (_s.charAt(0) === '#') {
+        sel = _s + '>';
+      } else {
+        sel += _s + '>';
+      }
+
+      pk += ',' + k;
+      parent = parent.children[k];
+    }
+  } // 最后一位本身的
+
+
+  var s = getLevelSel(node, node.parentNode, parentKey, fullCache, selCache);
+
+  if (s.charAt(0) === '#') {
+    sel = s;
+  } else {
+    sel += s;
+  }
+
+  return sel;
+}
+
+function getLevelSel(node, parent, parentKey, fullCache, selCache) {
+  var selList = [];
+
+  for (var i = 0, children = parent.children, len = children.length; i < len; i++) {
+    var child = children[i];
+    var key = parentKey ? parentKey + ',' + i : String(i);
+    var sel = getNodeSel(child, key, selCache); // 计算得出sel/{节点在兄弟层的索引类似nth-child}.{sel在兄弟层的索引类似nth-of-type}
+
+    if (child === node) {
+      var count = 0;
+
+      for (var j = 0, _len = selList.length; j < _len; j++) {
+        if (selList[j] === sel) {
+          count++;
+        }
+      }
+
+      return sel + '/' + i + '.' + count;
+    } else {
+      selList.push(sel);
+    }
+  }
+}
+
+function getNodeSel(node, key, selCache) {
+  // 依旧缓存，只要有2个以上的节点计算必然会出现重复，因为每个节点都要计算之前的兄弟以及递归父节点的之前的兄弟
+  if (selCache[key]) {
+    return selCache[key];
+  }
+
+  var sel = label.encode(node.nodeName);
+
+  if (node.id) {
+    return selCache[key] = '#' + node.id;
+  }
+
+  var cn = util.trim(Array.prototype.join.call(node.classList, '.'));
+
+  if (cn) {
+    sel += '.' + cn;
+  }
+
+  return selCache[key] = sel;
+}
+
+function exec() {
+  if (typeof document !== 'undefined') {
+    var res = [];
+    traverse(document.body, '', Object.create(null), Object.create(null), res);
+    return res;
+  }
+}
+
+var callback = function callback(mutationsList) {
+  if (util.isFunction(listener)) {
+    var has = false;
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+      for (var _iterator = mutationsList[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+        var mutation = _step.value;
+        var target = mutation.target;
+
+        if (target && !IGNORE[target.nodeName]) {
+          has = true;
+          break;
+        }
+      }
+    } catch (err) {
+      _didIteratorError = true;
+      _iteratorError = err;
+    } finally {
+      try {
+        if (!_iteratorNormalCompletion && _iterator.return != null) {
+          _iterator.return();
+        }
+      } finally {
+        if (_didIteratorError) {
+          throw _iteratorError;
+        }
+      }
+    }
+
+    if (has) {
+      if (timeout) {
+        clearTimeout(timeout);
+        timeout = null;
+      } // 间隔时间可能为0，但是由于MutationObserver本身是异步，所以达不到同步效果
+
+
+      timeout = setTimeout(function () {
+        var res = exec();
+        var s = JSON.stringify(res);
+
+        if (last !== s) {
+          last = s;
+
+          if (s) {
+            listener(res, s);
+          }
+        }
+      }, interval);
+    }
+  }
+};
+
+var observer;
+
+function addObserver() {
+  if (typeof document !== 'undefined' && typeof MutationObserver !== 'undefined') {
+    if (!observer) {
+      observer = new MutationObserver(function (mutationsList) {
+        callback(mutationsList);
+      });
+    }
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      characterData: true
+    });
+  }
+}
+
+module.exports = {
+  collect: function collect() {
+    return exec();
+  },
+  observe: function observe(time, cb) {
+    interval = time;
+    interval = Math.max(0, interval);
+    listener = cb;
+    addObserver();
+  },
+  collectAndObserve: function collectAndObserve(time, cb) {
+    // 只有cb
+    if (util.isFunction(time)) {
+      cb = time;
+      time = undefined;
+    }
+
+    var res = this.collect();
+    this.observe(time, cb);
+    return res;
+  },
+  disconnect: function disconnect() {
+    if (observer) {
+      observer.disconnect();
+    }
+  }
+};
+
+/***/ }),
+
+/***/ "./src/label.js":
+/*!**********************!*\
+  !*** ./src/label.js ***!
+  \**********************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var hash = Object.create(null);
+hash.DIV = '0';
+hash.P = '1';
+hash.A = '2';
+hash.SPAN = '3';
+hash.UL = '4';
+hash.LI = '5';
+hash.OL = '6';
+hash.DL = '7';
+hash.DD = '8';
+hash.DT = '9';
+hash.STRONG = 'A';
+hash.B = 'B';
+hash.SPAN = 'C';
+hash.TABLE = 'D';
+hash.TH = 'E';
+hash.TD = 'F';
+hash.PRE = 'G';
+hash.INPUT = 'H';
+hash.SELECT = 'I';
+hash.OPTION = 'J';
+hash.TEXTAREA = 'K';
+hash.FONT = 'L';
+hash.EM = 'M';
+hash.SMALL = 'M';
+module.exports = {
+  encode: function encode(s) {
+    return hash[s] || s;
+  },
+  decode: function decode(s) {}
+};
+
+/***/ }),
 
 /***/ "./src/manual.js":
 /*!***********************!*\
@@ -309,6 +606,27 @@ module.exports = {
 
 /***/ }),
 
+/***/ "./src/test.js":
+/*!*********************!*\
+  !*** ./src/test.js ***!
+  \*********************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var auto = __webpack_require__(/*! ./auto */ "./src/auto.js");
+
+var manual = __webpack_require__(/*! ./manual */ "./src/manual.js");
+
+module.exports = window.pixiu = {
+  auto: auto,
+  manual: manual
+};
+
+/***/ }),
+
 /***/ "./src/util.js":
 /*!*********************!*\
   !*** ./src/util.js ***!
@@ -342,4 +660,4 @@ module.exports = {
 /***/ })
 
 /******/ });
-//# sourceMappingURL=manual.js.map
+//# sourceMappingURL=test.js.map

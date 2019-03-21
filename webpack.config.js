@@ -7,6 +7,7 @@ module.exports = {
     'index': './src/index.js',
     'manual': './src/manual.js',
     'auto': './src/auto',
+    'test': './src/test',
   },
   output: {
     filename: '[name].js',

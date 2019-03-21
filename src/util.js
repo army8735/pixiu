@@ -7,7 +7,7 @@ function isType(type) {
   }
 }
 
-export default {
+module.exports = {
   trim(s) {
     return (s || '').replace(/^\s+/, '').replace(/\s+$/, '');
   },

@@ -1,6 +1,6 @@
 'use strict';
 
-import util from './util';
+const util = require('./util');
 
 let attrName = 'pixiu'; // 属性标签标识
 let interval = 500; // 每次dom变更侦听的延迟时间
@@ -131,9 +131,7 @@ function addObserver() {
   }
 }
 
-let pixiu = typeof window !== 'undefined' ? (window.pixiu || {}) : {};
-
-pixiu.manual = {
+module.exports = {
   collect(key) {
     if(key !== undefined) {
       attrName = key;
@@ -177,9 +175,3 @@ pixiu.manual = {
     }
   },
 };
-
-if(typeof window !== 'undefined' && !window.pixiu) {
-  window.pixiu = pixiu;
-}
-
-export default pixiu;

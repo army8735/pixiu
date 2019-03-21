@@ -1,7 +1,7 @@
 'use strict';
 
-import util from './util';
-import label from './label';
+const util = require('./util');
+const label = require('./label');
 
 let interval = 500; // 每次dom变更侦听的延迟时间
 let listener; // 变更后的回调
@@ -170,9 +170,7 @@ function addObserver() {
   }
 }
 
-let pixiu = typeof window !== 'undefined' ? (window.pixiu || {}) : {};
-
-pixiu.auto = {
+module.exports = {
   collect() {
     return exec();
   },
@@ -198,9 +196,3 @@ pixiu.auto = {
     }
   },
 };
-
-if(typeof window !== 'undefined' && !window.pixiu) {
-  window.pixiu = pixiu;
-}
-
-export default pixiu;

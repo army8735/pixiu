@@ -90,16 +90,15 @@
 /*!*********************!*\
   !*** ./src/auto.js ***!
   \*********************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _util__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./util */ "./src/util.js");
-/* harmony import */ var _label__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./label */ "./src/label.js");
 
 
+var util = __webpack_require__(/*! ./util */ "./src/util.js");
 
+var label = __webpack_require__(/*! ./label */ "./src/label.js");
 
 var interval = 500; // 每次dom变更侦听的延迟时间
 
@@ -127,7 +126,7 @@ function traverse(node, parentKey, fullCache, selCache, res) {
       if (first.nodeType === 1) {
         traverse(child, parentKey ? parentKey + ',' + i : String(i), fullCache, selCache, res);
       } else if (first.nodeType === 3) {
-        var s = _util__WEBPACK_IMPORTED_MODULE_0__["default"].trim(first.nodeValue); // 深度遍历取得包含唯一数字的dom后，计算dom的完整selector
+        var s = util.trim(first.nodeValue); // 深度遍历取得包含唯一数字的dom后，计算dom的完整selector
 
         if (isNumberString(s)) {
           var sel = getFullSel(child, i, parentKey, fullCache, selCache);
@@ -214,13 +213,13 @@ function getNodeSel(node, key, selCache) {
     return selCache[key];
   }
 
-  var sel = _label__WEBPACK_IMPORTED_MODULE_1__["default"].encode(node.nodeName);
+  var sel = label.encode(node.nodeName);
 
   if (node.id) {
     return selCache[key] = '#' + node.id;
   }
 
-  var cn = _util__WEBPACK_IMPORTED_MODULE_0__["default"].trim(Array.prototype.join.call(node.classList, '.'));
+  var cn = util.trim(Array.prototype.join.call(node.classList, '.'));
 
   if (cn) {
     sel += '.' + cn;
@@ -238,7 +237,7 @@ function exec() {
 }
 
 var callback = function callback(mutationsList) {
-  if (_util__WEBPACK_IMPORTED_MODULE_0__["default"].isFunction(listener)) {
+  if (util.isFunction(listener)) {
     var has = false;
     var _iteratorNormalCompletion = true;
     var _didIteratorError = false;
@@ -310,8 +309,7 @@ function addObserver() {
   }
 }
 
-var pixiu = typeof window !== 'undefined' ? window.pixiu || {} : {};
-pixiu.auto = {
+module.exports = {
   collect: function collect() {
     return exec();
   },
@@ -323,7 +321,7 @@ pixiu.auto = {
   },
   collectAndObserve: function collectAndObserve(time, cb) {
     // 只有cb
-    if (_util__WEBPACK_IMPORTED_MODULE_0__["default"].isFunction(time)) {
+    if (util.isFunction(time)) {
       cb = time;
       time = undefined;
     }
@@ -339,23 +337,16 @@ pixiu.auto = {
   }
 };
 
-if (typeof window !== 'undefined' && !window.pixiu) {
-  window.pixiu = pixiu;
-}
-
-/* harmony default export */ __webpack_exports__["default"] = (pixiu);
-
 /***/ }),
 
 /***/ "./src/label.js":
 /*!**********************!*\
   !*** ./src/label.js ***!
   \**********************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-__webpack_require__.r(__webpack_exports__);
 
 
 var hash = Object.create(null);
@@ -383,12 +374,12 @@ hash.TEXTAREA = 'K';
 hash.FONT = 'L';
 hash.EM = 'M';
 hash.SMALL = 'M';
-/* harmony default export */ __webpack_exports__["default"] = ({
+module.exports = {
   encode: function encode(s) {
     return hash[s] || s;
   },
   decode: function decode(s) {}
-});
+};
 
 /***/ }),
 
@@ -396,11 +387,10 @@ hash.SMALL = 'M';
 /*!*********************!*\
   !*** ./src/util.js ***!
   \*********************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-__webpack_require__.r(__webpack_exports__);
 
 
 var toString = {}.toString;
@@ -411,7 +401,7 @@ function isType(type) {
   };
 }
 
-/* harmony default export */ __webpack_exports__["default"] = ({
+module.exports = {
   trim: function trim(s) {
     return (s || '').replace(/^\s+/, '').replace(/\s+$/, '');
   },
@@ -421,7 +411,7 @@ function isType(type) {
   isNumber: isType('Number'),
   isBoolean: isType('Boolean'),
   isDate: isType('Date')
-});
+};
 
 /***/ })
 

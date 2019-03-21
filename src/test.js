@@ -3,7 +3,7 @@
 const auto = require('./auto');
 const manual = require('./manual');
 
-module.exports = {
+module.exports = window.pixiu = {
   auto,
   manual,
 };

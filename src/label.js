@@ -26,7 +26,7 @@ hash.FONT = 'L';
 hash.EM = 'M';
 hash.SMALL = 'M';
 
-export default {
+module.exports = {
   encode(s) {
     return hash[s] || s;
   },
