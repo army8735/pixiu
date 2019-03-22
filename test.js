@@ -339,6 +339,30 @@ module.exports = {
 
 /***/ }),
 
+/***/ "./src/index.js":
+/*!**********************!*\
+  !*** ./src/index.js ***!
+  \**********************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var auto = __webpack_require__(/*! ./auto */ "./src/auto.js");
+
+var manual = __webpack_require__(/*! ./manual */ "./src/manual.js");
+
+var tag = __webpack_require__(/*! ./tag */ "./src/tag.js");
+
+module.exports = {
+  auto: auto,
+  manual: manual,
+  tag: tag
+};
+
+/***/ }),
+
 /***/ "./src/manual.js":
 /*!***********************!*\
   !*** ./src/manual.js ***!
@@ -585,7 +609,7 @@ hash.DD = '8';
 hash.DT = '9';
 hash.STRONG = 'a';
 hash.B = 'b';
-hash.SPAN = 'd';
+hash.U = 'c';
 hash.TABLE = 'd';
 hash.TH = 'e';
 hash.TD = 'f';
@@ -627,8 +651,7 @@ hash.S = 'O';
 hash.Q = 'P';
 hash.SUB = 'Q';
 hash.SUP = 'R';
-hash.U = 'S';
-hash.STRIKE = 'T';
+hash.STRIKE = 'S';
 var reverse = Object.create(null);
 
 for (var i in hash) {
@@ -656,17 +679,9 @@ module.exports = {
 "use strict";
 
 
-var auto = __webpack_require__(/*! ./auto */ "./src/auto.js");
+var pixiu = __webpack_require__(/*! ./index */ "./src/index.js");
 
-var manual = __webpack_require__(/*! ./manual */ "./src/manual.js");
-
-var tag = __webpack_require__(/*! ./tag */ "./src/tag.js");
-
-module.exports = window.pixiu = {
-  auto: auto,
-  manual: manual,
-  tag: tag
-};
+module.exports = window.pixiu = pixiu;
 
 /***/ }),
 

@@ -362,7 +362,7 @@ hash.DD = '8';
 hash.DT = '9';
 hash.STRONG = 'a';
 hash.B = 'b';
-hash.SPAN = 'd';
+hash.U = 'c';
 hash.TABLE = 'd';
 hash.TH = 'e';
 hash.TD = 'f';
@@ -404,8 +404,7 @@ hash.S = 'O';
 hash.Q = 'P';
 hash.SUB = 'Q';
 hash.SUP = 'R';
-hash.U = 'S';
-hash.STRIKE = 'T';
+hash.STRIKE = 'S';
 var reverse = Object.create(null);
 
 for (var i in hash) {

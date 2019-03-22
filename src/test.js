@@ -1,11 +1,5 @@
 'use strict';
 
-const auto = require('./auto');
-const manual = require('./manual');
-const tag = require('./tag');
+const pixiu = require('./index');
 
-module.exports = window.pixiu = {
-  auto,
-  manual,
-  tag,
-};
+module.exports = window.pixiu = pixiu;
