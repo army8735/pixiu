@@ -98,7 +98,7 @@
 
 var util = __webpack_require__(/*! ./util */ "./src/util.js");
 
-var label = __webpack_require__(/*! ./label */ "./src/label.js");
+var label = __webpack_require__(/*! ./tag */ "./src/tag.js");
 
 var interval = 500; // 每次dom变更侦听的延迟时间
 
@@ -339,50 +339,6 @@ module.exports = {
 
 /***/ }),
 
-/***/ "./src/label.js":
-/*!**********************!*\
-  !*** ./src/label.js ***!
-  \**********************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var hash = Object.create(null);
-hash.DIV = '0';
-hash.P = '1';
-hash.A = '2';
-hash.SPAN = '3';
-hash.UL = '4';
-hash.LI = '5';
-hash.OL = '6';
-hash.DL = '7';
-hash.DD = '8';
-hash.DT = '9';
-hash.STRONG = 'A';
-hash.B = 'B';
-hash.SPAN = 'C';
-hash.TABLE = 'D';
-hash.TH = 'E';
-hash.TD = 'F';
-hash.PRE = 'G';
-hash.INPUT = 'H';
-hash.SELECT = 'I';
-hash.OPTION = 'J';
-hash.TEXTAREA = 'K';
-hash.FONT = 'L';
-hash.EM = 'M';
-hash.SMALL = 'M';
-module.exports = {
-  encode: function encode(s) {
-    return hash[s] || s;
-  },
-  decode: function decode(s) {}
-};
-
-/***/ }),
-
 /***/ "./src/manual.js":
 /*!***********************!*\
   !*** ./src/manual.js ***!
@@ -606,6 +562,90 @@ module.exports = {
 
 /***/ }),
 
+/***/ "./src/tag.js":
+/*!********************!*\
+  !*** ./src/tag.js ***!
+  \********************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var hash = Object.create(null);
+hash.DIV = '0';
+hash.P = '1';
+hash.A = '2';
+hash.SPAN = '3';
+hash.UL = '4';
+hash.LI = '5';
+hash.OL = '6';
+hash.DL = '7';
+hash.DD = '8';
+hash.DT = '9';
+hash.STRONG = 'a';
+hash.B = 'b';
+hash.SPAN = 'd';
+hash.TABLE = 'd';
+hash.TH = 'e';
+hash.TD = 'f';
+hash.PRE = 'g';
+hash.INPUT = 'h';
+hash.SELECT = 'i';
+hash.OPTION = 'j';
+hash.TEXTAREA = 'k';
+hash.FONT = 'l';
+hash.EM = 'm';
+hash.SMALL = 'n';
+hash.ABBR = 'o';
+hash.ADDRESS = 'p';
+hash.ARTICLE = 'q';
+hash.ASIDE = 'r';
+hash.BIG = 's';
+hash.BLOCKQUOTE = 't';
+hash.BUTTON = 'u';
+hash.CAPTION = 'v';
+hash.CENTER = 'w';
+hash.DEL = 'x';
+hash.FIELDSET = 'y';
+hash.FONT = 'z';
+hash.FOOTER = 'A';
+hash.HEADER = 'B';
+hash.SECTION = 'C';
+hash.H1 = 'D';
+hash.H2 = 'E';
+hash.H3 = 'F';
+hash.H4 = 'G';
+hash.H5 = 'H';
+hash.H6 = 'I';
+hash.I = 'J';
+hash.INS = 'K';
+hash.LABEL = 'L';
+hash.MENU = 'M';
+hash.OPTION = 'N';
+hash.S = 'O';
+hash.Q = 'P';
+hash.SUB = 'Q';
+hash.SUP = 'R';
+hash.U = 'S';
+hash.STRIKE = 'T';
+var reverse = Object.create(null);
+
+for (var i in hash) {
+  reverse[hash[i]] = i;
+}
+
+module.exports = {
+  encode: function encode(s) {
+    return hash[s] || s;
+  },
+  decode: function decode(s) {
+    return reverse[s] || s;
+  }
+};
+
+/***/ }),
+
 /***/ "./src/test.js":
 /*!*********************!*\
   !*** ./src/test.js ***!
@@ -620,9 +660,12 @@ var auto = __webpack_require__(/*! ./auto */ "./src/auto.js");
 
 var manual = __webpack_require__(/*! ./manual */ "./src/manual.js");
 
+var tag = __webpack_require__(/*! ./tag */ "./src/tag.js");
+
 module.exports = window.pixiu = {
   auto: auto,
-  manual: manual
+  manual: manual,
+  tag: tag
 };
 
 /***/ }),

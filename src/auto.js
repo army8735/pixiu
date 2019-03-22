@@ -1,7 +1,7 @@
 'use strict';
 
 const util = require('./util');
-const label = require('./label');
+const label = require('./tag');
 
 let interval = 500; // 每次dom变更侦听的延迟时间
 let listener; // 变更后的回调

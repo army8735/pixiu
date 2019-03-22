@@ -20,7 +20,8 @@ const auto = require('pixiu/auto'); // 只引用自动的收集部分
 const manual = require('pixiu/manual'); // 只引用手动的收集部分
 ```
 全部引用和单独分开引用自动/手动有些许不同。
-分开引用时API直接挂在相应的对象上；全部引用自动的API挂在`auto`属性下，而手动的API挂在`manual`属性下。
+分开引用时API直接挂在相应的对象上；
+全部引用自动的API挂在`auto`属性下，而手动的API挂在`manual`属性下。
 
 ## API
 
@@ -52,6 +53,7 @@ disconnect(): void
 collect(key: String = 'pixiu'): Array<Object>
 ```
 收集所有属性包含`key`且仅包含唯一文本节点的dom节点，返回一个数组，每项是个键值对，键为属性`key`的值，值为dom的文本内容。
+注意它不强制要求是数字。
 
 ```as
 observe(key: String = 'pixiu', time: int = 500, callback: Function): void
@@ -67,3 +69,13 @@ collectAndObserve(key: String = 'pixiu', time: int = 0, callback: Function): Arr
 disconnect(): void
 ```
 暂停侦听。
+
+#### tag
+```as
+encode(s: String): String
+```
+编码dom的nodeName为简写字符，未知则原样返回。
+```as
+decode(s: String): String
+```
+解码简写字符为dom的nodeName，未知则原样返回。
