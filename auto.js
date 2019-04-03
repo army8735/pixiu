@@ -324,6 +324,12 @@ module.exports = {
     return exec();
   },
   observe: function observe(time, cb) {
+    // 只有cb
+    if (util.isFunction(time)) {
+      cb = time;
+      time = undefined;
+    }
+
     interval = time;
     interval = Math.max(0, interval);
     listener = cb;
