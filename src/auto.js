@@ -12,7 +12,7 @@ const IGNORE = Object.create(null);
 IGNORE.BODY = IGNORE.SCRIPT = IGNORE.STYLE = true;
 
 function isNumberString(s) {
-  return /^(([+-]?\d\.)|([+-]?\d*\.\d+)|([+-]?\d+))$/.test(s);
+  return /^(([+-]?\d+\.)|([+-]?\d*\.\d+)|([+-]?\d+))$/.test(s);
 }
 
 function traverse(node, parentKey, fullCache, selCache, res) {
