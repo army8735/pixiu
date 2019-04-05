@@ -122,7 +122,7 @@ var IGNORE = Object.create(null);
 IGNORE.BODY = IGNORE.SCRIPT = IGNORE.STYLE = IGNORE.LINK = IGNORE.META = IGNORE.TITLE = IGNORE.CANVAS = IGNORE.SVG = IGNORE.APPLET = IGNORE.OBJECT = IGNORE.EMBED = IGNORE.AUDIO = IGNORE.VIDEO = IGNORE.BR = IGNORE.IFRAME = IGNORE.FRAME = IGNORE.MAP = IGNORE.NOFRAMES = IGNORE.NOSCRIPT = IGNORE.PROGRESS = IGNORE.FRAMESET = true;
 
 function isNumberString(s) {
-  return /^(([+-]?\d+\.)|([+-]?\d*\.\d+)|([+-]?\d+))$/.test(s);
+  return /^(([+-]?\d+\.)|([+-]?\d*\.\d+)|([+-]?\d+))$/.test(s) || !s || s === 'undefined' || s === 'null' || s === 'NaN';
 }
 
 function traverse(node, parentKey, fullCache, selCache, res) {
