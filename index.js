@@ -119,7 +119,7 @@ var timeout; // 变更的临时引用
 var last; // 上次获取的结果的JSON.stringify暂存
 
 var IGNORE = Object.create(null);
-IGNORE.BODY = IGNORE.SCRIPT = IGNORE.STYLE = true;
+IGNORE.BODY = IGNORE.SCRIPT = IGNORE.STYLE = IGNORE.LINK = IGNORE.META = IGNORE.TITLE = IGNORE.CANVAS = IGNORE.SVG = IGNORE.APPLET = IGNORE.OBJECT = IGNORE.EMBED = IGNORE.AUDIO = IGNORE.VIDEO = IGNORE.BR = IGNORE.IFRAME = IGNORE.FRAME = IGNORE.MAP = IGNORE.NOFRAMES = IGNORE.NOSCRIPT = IGNORE.PROGRESS = IGNORE.FRAMESET = true;
 
 function isNumberString(s) {
   return /^(([+-]?\d+\.)|([+-]?\d*\.\d+)|([+-]?\d+))$/.test(s);
