@@ -10,6 +10,7 @@ module.exports = {
       .assert.value('#b', 'SELECT')
       .assert.value('#c', 'UNKNOW')
       .assert.value('#d', 'abc')
+      .assert.value('#e', '#root:nth-child(0):nth-of-type(0)>div.wrapper.index-container:nth-child(0):nth-of-type(0)>div.wrapper-main:nth-child(1):nth-of-type(2)')
       .end();
   }
 };

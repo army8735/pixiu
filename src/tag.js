@@ -64,9 +64,30 @@ for(let i in hash) {
 
 module.exports = {
   encode(s) {
+    if(!s) {
+      return s;
+    }
     return hash[s] || s;
   },
   decode(s) {
+    if(!s) {
+      return s;
+    }
     return reverse[s] || s;
   },
+  decodeAll(s) {
+    if(!s) {
+      return s;
+    }
+    let list = s.split('>');
+    return list.map(item => {
+      let arr = item.split('/');
+      let sel = arr[0];
+      if(sel.charAt(0) !== '#') {
+        sel = this.decode(sel.charAt(0)).toLowerCase() + sel.slice(1);
+      }
+      let pseudo = arr[1].split('.');
+      return sel + ':nth-child(' + pseudo[0] + '):nth-of-type(' + pseudo[1] + ')';
+    }).join('>');
+  }
 };

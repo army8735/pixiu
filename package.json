@@ -1,6 +1,6 @@
 {
   "name": "pixiu",
-  "version": "0.3.6",
+  "version": "0.4.0",
   "description": "A dom number-values collector",
   "maintainers": [
     {
@@ -11,7 +11,6 @@
   "scripts": {
     "build": "webpack --colors",
     "dev": "webpack --config webpack-dev.config.js --colors",
-    "dist": "webpack --config webpack-dist.config.js",
     "test": "make test"
   },
   "repository": {

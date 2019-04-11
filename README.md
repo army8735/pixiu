@@ -79,3 +79,8 @@ encode(s: String): String
 decode(s: String): String
 ```
 解码简写字符为dom的nodeName，未知则原样返回。
+```as
+decodeAll(s: String): String
+```
+解码整个selector并返回。
+

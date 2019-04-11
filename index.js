@@ -676,10 +676,38 @@ for (var i in hash) {
 
 module.exports = {
   encode: function encode(s) {
+    if (!s) {
+      return s;
+    }
+
     return hash[s] || s;
   },
   decode: function decode(s) {
+    if (!s) {
+      return s;
+    }
+
     return reverse[s] || s;
+  },
+  decodeAll: function decodeAll(s) {
+    var _this = this;
+
+    if (!s) {
+      return s;
+    }
+
+    var list = s.split('>');
+    return list.map(function (item) {
+      var arr = item.split('/');
+      var sel = arr[0];
+
+      if (sel.charAt(0) !== '#') {
+        sel = _this.decode(sel.charAt(0)).toLowerCase() + sel.slice(1);
+      }
+
+      var pseudo = arr[1].split('.');
+      return sel + ':nth-child(' + pseudo[0] + '):nth-of-type(' + pseudo[1] + ')';
+    }).join('>');
   }
 };
 
