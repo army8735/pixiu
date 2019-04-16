@@ -87,7 +87,7 @@ module.exports = {
         sel = this.decode(sel.charAt(0)).toLowerCase() + sel.slice(1);
       }
       let pseudo = arr[1].split('.');
-      return sel + ':nth-child(' + (pseudo[0] + 1) + '):nth-of-type(' + (pseudo[1] + 1) + ')';
+      return sel + ':nth-child(' + (parseInt(pseudo[0]) + 1) + ')';
     }).join('>');
   }
 };
