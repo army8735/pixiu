@@ -33,7 +33,7 @@ IGNORE.BODY
   = true;
 
 function isNumberString(s) {
-  return /^(([+-]?\d+\.)|([+-]?\d*\.\d+)|([+-]?\d+))$/.test(s) || !s || s ==='undefined' || s === 'null' || s ==='NaN' || /-+/.test(s);
+  return /^(([+-]?\d+\.)|([+-]?\d*\.\d+)|([+-]?\d+))$/.test(s) || !s || s ==='undefined' || s === 'null' || s ==='NaN';
 }
 
 function traverse(node, parentKey, fullCache, selCache, res) {
