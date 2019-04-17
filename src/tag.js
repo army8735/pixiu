@@ -79,7 +79,7 @@ module.exports = {
     if(!s) {
       return s;
     }
-    let list = s.split('>');
+    let list = s.replace(/>\d+$/).split('>');
     return list.map(item => {
       let arr = item.split('/');
       let sel = arr[0];

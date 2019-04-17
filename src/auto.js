@@ -32,10 +32,6 @@ IGNORE.BODY
   = IGNORE.FRAMESET
   = true;
 
-function isNumberString(s) {
-  return /^(([+-]?\d+\.)|([+-]?\d*\.\d+)|([+-]?\d+))$/.test(s) || !s || s ==='undefined' || s === 'null' || s ==='NaN';
-}
-
 function traverse(node, parentKey, fullCache, selCache, res) {
   for(let i = 0, children = node.children, len = children.length; i < len; i++) {
     let child = children[i];
@@ -46,13 +42,16 @@ function traverse(node, parentKey, fullCache, selCache, res) {
         traverse(child, parentKey ? (parentKey + ',' + i) : String(i), fullCache, selCache, res);
       }
       else if(first.nodeType === 3) {
-        let s = util.trim(first.nodeValue);
-        // 深度遍历取得包含数字text的dom后，计算dom的完整selector
-        if(isNumberString(s)) {
+        // 去除时间日期等数字
+        let list = first.nodeValue.replace(/\d+([/:-])\d+(\1\d+)*/g, '').match(/(?:[+-]?\d*\.\d+)|(?:[+-]?\d+)|(?:\bundefined\b)|(?:\bnull\b)|(?:\bNaN\b)/g);
+        if (list && list.length) {
+          // 深度遍历取得包含数字text的dom后，计算dom的完整selector
           let sel = getFullSel(child, i, parentKey, fullCache, selCache);
-          res.push({
-            k: sel,
-            v: s,
+          list.forEach((item, i) => {
+            res.push({
+              k: sel + '>' + i,
+              v: item,
+            });
           });
         }
       }

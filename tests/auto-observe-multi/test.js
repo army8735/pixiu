@@ -7,7 +7,7 @@ module.exports = {
       .url('file://' + path.join(__dirname, 'index.html'))
       .waitForElementVisible('body', 1000)
       .pause(1000)
-      .assert.value('input', '[{"k":"0/1.0","v":"0.3"}]')
+      .assert.value('input', '[{"k":"0/1.0>0","v":"0.3"}]')
       .end();
   }
 };

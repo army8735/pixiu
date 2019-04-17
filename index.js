@@ -121,10 +121,6 @@ var last; // 上次获取的结果的JSON.stringify暂存
 var IGNORE = Object.create(null);
 IGNORE.BODY = IGNORE.SCRIPT = IGNORE.STYLE = IGNORE.LINK = IGNORE.META = IGNORE.TITLE = IGNORE.CANVAS = IGNORE.SVG = IGNORE.APPLET = IGNORE.OBJECT = IGNORE.EMBED = IGNORE.AUDIO = IGNORE.VIDEO = IGNORE.BR = IGNORE.IFRAME = IGNORE.FRAME = IGNORE.MAP = IGNORE.NOFRAMES = IGNORE.NOSCRIPT = IGNORE.PROGRESS = IGNORE.FRAMESET = true;
 
-function isNumberString(s) {
-  return /^(([+-]?\d+\.)|([+-]?\d*\.\d+)|([+-]?\d+))$/.test(s) || !s || s === 'undefined' || s === 'null' || s === 'NaN';
-}
-
 function traverse(node, parentKey, fullCache, selCache, res) {
   for (var i = 0, children = node.children, len = children.length; i < len; i++) {
     var child = children[i];
@@ -136,14 +132,20 @@ function traverse(node, parentKey, fullCache, selCache, res) {
       if (first.nodeType === 1) {
         traverse(child, parentKey ? parentKey + ',' + i : String(i), fullCache, selCache, res);
       } else if (first.nodeType === 3) {
-        var s = util.trim(first.nodeValue); // 深度遍历取得包含数字text的dom后，计算dom的完整selector
+        // 去除时间日期等数字
+        var list = first.nodeValue.replace(/\d+([/:-])\d+(\1\d+)*/g, '').match(/(?:[+-]?\d*\.\d+)|(?:[+-]?\d+)|(?:\bundefined\b)|(?:\bnull\b)|(?:\bNaN\b)/g);
 
-        if (isNumberString(s)) {
-          var sel = getFullSel(child, i, parentKey, fullCache, selCache);
-          res.push({
-            k: sel,
-            v: s
-          });
+        if (list && list.length) {
+          (function () {
+            // 深度遍历取得包含数字text的dom后，计算dom的完整selector
+            var sel = getFullSel(child, i, parentKey, fullCache, selCache);
+            list.forEach(function (item, i) {
+              res.push({
+                k: sel + '>' + i,
+                v: item
+              });
+            });
+          })();
         }
       }
     } else if (childNodes.length > 1) {
@@ -688,7 +690,7 @@ module.exports = {
       return s;
     }
 
-    var list = s.split('>');
+    var list = s.replace(/>\d+$/).split('>');
     return list.map(function (item) {
       var arr = item.split('/');
       var sel = arr[0];
