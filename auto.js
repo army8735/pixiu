@@ -122,7 +122,7 @@ var IGNORE = Object.create(null);
 IGNORE.BODY = IGNORE.SCRIPT = IGNORE.STYLE = IGNORE.LINK = IGNORE.META = IGNORE.TITLE = IGNORE.CANVAS = IGNORE.SVG = IGNORE.APPLET = IGNORE.OBJECT = IGNORE.EMBED = IGNORE.AUDIO = IGNORE.VIDEO = IGNORE.BR = IGNORE.IFRAME = IGNORE.FRAME = IGNORE.MAP = IGNORE.NOFRAMES = IGNORE.NOSCRIPT = IGNORE.PROGRESS = IGNORE.FRAMESET = true;
 
 function isNumberString(s) {
-  return /^(([+-]?\d+\.)|([+-]?\d*\.\d+)|([+-]?\d+))$/.test(s) || !s || s === 'undefined' || s === 'null' || s === 'NaN';
+  return /^(([+-]?\d+\.)|([+-]?\d*\.\d+)|([+-]?\d+))$/.test(s) || !s || s === 'undefined' || s === 'null' || s === 'NaN' || /-+/.test(s);
 }
 
 function traverse(node, parentKey, fullCache, selCache, res) {
@@ -136,7 +136,7 @@ function traverse(node, parentKey, fullCache, selCache, res) {
       if (first.nodeType === 1) {
         traverse(child, parentKey ? parentKey + ',' + i : String(i), fullCache, selCache, res);
       } else if (first.nodeType === 3) {
-        var s = util.trim(first.nodeValue); // 深度遍历取得包含唯一数字的dom后，计算dom的完整selector
+        var s = util.trim(first.nodeValue); // 深度遍历取得包含数字text的dom后，计算dom的完整selector
 
         if (isNumberString(s)) {
           var sel = getFullSel(child, i, parentKey, fullCache, selCache);
@@ -167,13 +167,12 @@ function getFullSel(node, index, parentKey, fullCache, selCache) {
 
     for (var i = 0, len = ks.length; i < len; i++) {
       var k = ks[i];
+      var s = getLevelSel(parent.children[k], parent, pk, fullCache, selCache);
 
-      var _s = getLevelSel(parent.children[k], parent, pk, fullCache, selCache);
-
-      if (_s.charAt(0) === '#') {
-        sel = _s + '>';
+      if (s.charAt(0) === '#') {
+        sel = s + '>';
       } else {
-        sel += _s + '>';
+        sel += s + '>';
       }
 
       pk += ',' + k;
@@ -182,14 +181,7 @@ function getFullSel(node, index, parentKey, fullCache, selCache) {
   } // 最后一位本身的
 
 
-  var s = getLevelSel(node, node.parentNode, parentKey, fullCache, selCache);
-
-  if (s.charAt(0) === '#') {
-    sel = s;
-  } else {
-    sel += s;
-  }
-
+  sel += getLevelSel(node, node.parentNode, parentKey, fullCache, selCache);
   return sel;
 }
 
@@ -199,7 +191,7 @@ function getLevelSel(node, parent, parentKey, fullCache, selCache) {
   for (var i = 0, children = parent.children, len = children.length; i < len; i++) {
     var child = children[i];
     var key = parentKey ? parentKey + ',' + i : String(i);
-    var sel = getNodeSel(child, key, selCache); // 计算得出sel/{节点在兄弟层的索引类似nth-child}.{sel在兄弟层的索引类似nth-of-type}
+    var sel = getNodeSel(child, key, selCache); // 计算得出sel/{节点在兄弟层的索引即nth-child}.{sel在兄弟层的索引类似nth-of-type}
 
     if (child === node) {
       var count = 0;

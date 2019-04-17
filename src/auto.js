@@ -33,7 +33,7 @@ IGNORE.BODY
   = true;
 
 function isNumberString(s) {
-  return /^(([+-]?\d+\.)|([+-]?\d*\.\d+)|([+-]?\d+))$/.test(s) || !s || s ==='undefined' || s === 'null' || s ==='NaN';
+  return /^(([+-]?\d+\.)|([+-]?\d*\.\d+)|([+-]?\d+))$/.test(s) || !s || s ==='undefined' || s === 'null' || s ==='NaN' || /-+/.test(s);
 }
 
 function traverse(node, parentKey, fullCache, selCache, res) {
@@ -47,7 +47,7 @@ function traverse(node, parentKey, fullCache, selCache, res) {
       }
       else if(first.nodeType === 3) {
         let s = util.trim(first.nodeValue);
-        // 深度遍历取得包含唯一数字的dom后，计算dom的完整selector
+        // 深度遍历取得包含数字text的dom后，计算dom的完整selector
         if(isNumberString(s)) {
           let sel = getFullSel(child, i, parentKey, fullCache, selCache);
           res.push({
@@ -88,13 +88,7 @@ function getFullSel(node, index, parentKey, fullCache, selCache) {
     }
   }
   // 最后一位本身的
-  let s = getLevelSel(node, node.parentNode, parentKey, fullCache, selCache);
-  if(s.charAt(0) === '#') {
-    sel = s;
-  }
-  else {
-    sel += s;
-  }
+  sel += getLevelSel(node, node.parentNode, parentKey, fullCache, selCache);
   return sel;
 }
 
@@ -104,7 +98,7 @@ function getLevelSel(node, parent, parentKey, fullCache, selCache) {
     let child = children[i];
     let key = parentKey ? (parentKey + ',' + i) : String(i);
     let sel = getNodeSel(child, key, selCache);
-    // 计算得出sel/{节点在兄弟层的索引类似nth-child}.{sel在兄弟层的索引类似nth-of-type}
+    // 计算得出sel/{节点在兄弟层的索引即nth-child}.{sel在兄弟层的索引类似nth-of-type}
     if(child === node) {
       let count = 0;
       for(let j = 0, len = selList.length; j < len; j++) {
