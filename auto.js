@@ -119,9 +119,9 @@ var timeout; // 变更的临时引用
 var last; // 上次获取的结果的JSON.stringify暂存
 
 var IGNORE = Object.create(null);
-IGNORE.HEAD = IGNORE.SCRIPT = IGNORE.STYLE = IGNORE.LINK = IGNORE.META = IGNORE.TITLE = IGNORE.CANVAS = IGNORE.SVG = IGNORE.APPLET = IGNORE.OBJECT = IGNORE.EMBED = IGNORE.AUDIO = IGNORE.VIDEO = IGNORE.BR = IGNORE.IFRAME = IGNORE.FRAME = IGNORE.MAP = IGNORE.NOFRAMES = IGNORE.NOSCRIPT = IGNORE.PROGRESS = IGNORE.FRAMESET = true;
+IGNORE.SCRIPT = IGNORE.STYLE = IGNORE.LINK = IGNORE.META = IGNORE.TITLE = IGNORE.CANVAS = IGNORE.SVG = IGNORE.APPLET = IGNORE.OBJECT = IGNORE.EMBED = IGNORE.AUDIO = IGNORE.VIDEO = IGNORE.BR = IGNORE.IFRAME = IGNORE.FRAME = IGNORE.MAP = IGNORE.NOFRAMES = IGNORE.NOSCRIPT = IGNORE.PROGRESS = IGNORE.FRAMESET = true;
 
-function traverse(node, parentKey, fullCache, selCache, res) {
+function traverse(node, parentKey, selCache, res) {
   var _loop = function _loop(i, children, len) {
     var child = children[i];
 
@@ -130,7 +130,7 @@ function traverse(node, parentKey, fullCache, selCache, res) {
         return "continue";
       }
 
-      traverse(child, parentKey ? parentKey + ',' + i : String(i), fullCache, selCache, res);
+      traverse(child, parentKey ? parentKey + ',' + i : String(i), selCache, res);
     } else if (child.nodeType === 3) {
       var value = child.nodeValue; // 去除时间日期等数字
 
@@ -138,7 +138,7 @@ function traverse(node, parentKey, fullCache, selCache, res) {
 
       if (list && list.length) {
         // 深度遍历取得包含数字text的dom后，计算dom的完整selector
-        var sel = getFullSel(node, child, i, parentKey, fullCache, selCache);
+        var sel = getFullSel(node, parentKey, selCache);
         list.forEach(function (item, j) {
           res.push({
             k: sel + i + '.' + j,
@@ -156,7 +156,7 @@ function traverse(node, parentKey, fullCache, selCache, res) {
   }
 }
 
-function getFullSel(node, text, index, parentKey, fullCache, selCache) {
+function getFullSel(node, parentKey, selCache) {
   // 有id可以提前直接返回
   if (node.id) {
     return '#' + node.id + '>';
@@ -172,7 +172,7 @@ function getFullSel(node, text, index, parentKey, fullCache, selCache) {
 
     for (var i = 0, len = ks.length; i < len; i++) {
       var k = ks[i];
-      var s = getLevelSel(parent.childNodes[k], parent, pk, fullCache, selCache);
+      var s = getLevelSel(parent.childNodes[k], parent, pk, selCache);
 
       if (s.charAt(0) === '#') {
         sel = s + '>';
@@ -188,7 +188,7 @@ function getFullSel(node, text, index, parentKey, fullCache, selCache) {
   return sel;
 }
 
-function getLevelSel(node, parent, parentKey, fullCache, selCache) {
+function getLevelSel(node, parent, parentKey, selCache) {
   var selList = [];
 
   for (var i = 0, children = parent.children, len = children.length; i < len; i++) {
@@ -236,7 +236,7 @@ function getNodeSel(node, key, selCache) {
 function exec() {
   if (typeof document !== 'undefined') {
     var res = [];
-    traverse(document.body, '', Object.create(null), Object.create(null), res);
+    traverse(document.body, '', Object.create(null), res);
     return res;
   }
 }

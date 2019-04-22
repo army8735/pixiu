@@ -9,8 +9,7 @@ let timeout; // 变更的临时引用
 let last; // 上次获取的结果的JSON.stringify暂存
 
 const IGNORE = Object.create(null);
-IGNORE.HEAD
-  = IGNORE.SCRIPT
+IGNORE.SCRIPT
   = IGNORE.STYLE
   = IGNORE.LINK
   = IGNORE.META
@@ -32,14 +31,14 @@ IGNORE.HEAD
   = IGNORE.FRAMESET
   = true;
 
-function traverse(node, parentKey, fullCache, selCache, res) {
+function traverse(node, parentKey, selCache, res) {
   for(let i = 0, children = node.childNodes, len = children.length; i < len; i++) {
     let child = children[i];
     if (child.nodeType === 1) {
       if (IGNORE[child.nodeName]) {
         continue;
       }
-      traverse(child, parentKey ? (parentKey + ',' + i) : String(i), fullCache, selCache, res);
+      traverse(child, parentKey ? (parentKey + ',' + i) : String(i), selCache, res);
     }
     else if (child.nodeType === 3) {
       let value = child.nodeValue;
@@ -47,7 +46,7 @@ function traverse(node, parentKey, fullCache, selCache, res) {
       let list = value.replace(/\d+([/:-])\d+(\1\d+)*/g, '').match(/(?:[+-]?\d*\.\d+)|(?:[+-]?\d+)|(?:\bundefined\b)|(?:\bnull\b)|(?:\bNaN\b)/g);
       if (list && list.length) {
         // 深度遍历取得包含数字text的dom后，计算dom的完整selector
-        let sel = getFullSel(node, child, i, parentKey, fullCache, selCache);
+        let sel = getFullSel(node, parentKey, selCache);
         list.forEach((item, j) => {
           res.push({
             k: sel + i + '.' + j,
@@ -59,7 +58,7 @@ function traverse(node, parentKey, fullCache, selCache, res) {
   }
 }
 
-function getFullSel(node, text, index, parentKey, fullCache, selCache) {
+function getFullSel(node, parentKey, selCache) {
   // 有id可以提前直接返回
   if(node.id) {
     return '#' + node.id + '>';
@@ -73,7 +72,7 @@ function getFullSel(node, text, index, parentKey, fullCache, selCache) {
     // 先计算靠前的和靠根的为后续做缓存，动态规划
     for(let i = 0, len = ks.length; i < len; i++) {
       let k = ks[i];
-      let s = getLevelSel(parent.childNodes[k], parent, pk, fullCache, selCache);
+      let s = getLevelSel(parent.childNodes[k], parent, pk, selCache);
       if(s.charAt(0) === '#') {
         sel = s + '>';
       }
@@ -87,7 +86,7 @@ function getFullSel(node, text, index, parentKey, fullCache, selCache) {
   return sel;
 }
 
-function getLevelSel(node, parent, parentKey, fullCache, selCache) {
+function getLevelSel(node, parent, parentKey, selCache) {
   let selList = [];
   for(let i = 0, children = parent.children, len = children.length; i < len; i++) {
     let child = children[i];
@@ -128,7 +127,7 @@ function getNodeSel(node, key, selCache) {
 function exec() {
   if(typeof document !== 'undefined') {
     let res = [];
-    traverse(document.body, '', Object.create(null), Object.create(null), res);
+    traverse(document.body, '', Object.create(null), res);
     return res;
   }
 }
