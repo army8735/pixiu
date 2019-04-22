@@ -119,46 +119,49 @@ var timeout; // 变更的临时引用
 var last; // 上次获取的结果的JSON.stringify暂存
 
 var IGNORE = Object.create(null);
-IGNORE.BODY = IGNORE.SCRIPT = IGNORE.STYLE = IGNORE.LINK = IGNORE.META = IGNORE.TITLE = IGNORE.CANVAS = IGNORE.SVG = IGNORE.APPLET = IGNORE.OBJECT = IGNORE.EMBED = IGNORE.AUDIO = IGNORE.VIDEO = IGNORE.BR = IGNORE.IFRAME = IGNORE.FRAME = IGNORE.MAP = IGNORE.NOFRAMES = IGNORE.NOSCRIPT = IGNORE.PROGRESS = IGNORE.FRAMESET = true;
+IGNORE.HEAD = IGNORE.SCRIPT = IGNORE.STYLE = IGNORE.LINK = IGNORE.META = IGNORE.TITLE = IGNORE.CANVAS = IGNORE.SVG = IGNORE.APPLET = IGNORE.OBJECT = IGNORE.EMBED = IGNORE.AUDIO = IGNORE.VIDEO = IGNORE.BR = IGNORE.IFRAME = IGNORE.FRAME = IGNORE.MAP = IGNORE.NOFRAMES = IGNORE.NOSCRIPT = IGNORE.PROGRESS = IGNORE.FRAMESET = true;
 
 function traverse(node, parentKey, fullCache, selCache, res) {
-  for (var i = 0, children = node.children, len = children.length; i < len; i++) {
+  var _loop = function _loop(i, children, len) {
     var child = children[i];
-    var childNodes = child.childNodes;
 
-    if (childNodes.length === 1) {
-      var first = child.firstChild;
-
-      if (first.nodeType === 1) {
-        traverse(child, parentKey ? parentKey + ',' + i : String(i), fullCache, selCache, res);
-      } else if (first.nodeType === 3) {
-        // 去除时间日期等数字
-        var list = first.nodeValue.replace(/\d+([/:-])\d+(\1\d+)*/g, '').match(/(?:[+-]?\d*\.\d+)|(?:[+-]?\d+)|(?:\bundefined\b)|(?:\bnull\b)|(?:\bNaN\b)/g);
-
-        if (list && list.length) {
-          (function () {
-            // 深度遍历取得包含数字text的dom后，计算dom的完整selector
-            var sel = getFullSel(child, i, parentKey, fullCache, selCache);
-            list.forEach(function (item, i) {
-              res.push({
-                k: sel + '>' + i,
-                v: item
-              });
-            });
-          })();
-        }
+    if (child.nodeType === 1) {
+      if (IGNORE[child.nodeName]) {
+        return "continue";
       }
-    } else if (childNodes.length > 1) {
+
       traverse(child, parentKey ? parentKey + ',' + i : String(i), fullCache, selCache, res);
+    } else if (child.nodeType === 3) {
+      var value = child.nodeValue; // 去除时间日期等数字
+
+      var list = value.replace(/\d+([/:-])\d+(\1\d+)*/g, '').match(/(?:[+-]?\d*\.\d+)|(?:[+-]?\d+)|(?:\bundefined\b)|(?:\bnull\b)|(?:\bNaN\b)/g);
+
+      if (list && list.length) {
+        // 深度遍历取得包含数字text的dom后，计算dom的完整selector
+        var sel = getFullSel(node, child, i, parentKey, fullCache, selCache);
+        list.forEach(function (item, j) {
+          res.push({
+            k: sel + i + '.' + j,
+            v: item
+          });
+        });
+      }
     }
+  };
+
+  for (var i = 0, children = node.childNodes, len = children.length; i < len; i++) {
+    var _ret = _loop(i, children, len);
+
+    if (_ret === "continue") continue;
   }
 }
 
-function getFullSel(node, index, parentKey, fullCache, selCache) {
+function getFullSel(node, text, index, parentKey, fullCache, selCache) {
   // 有id可以提前直接返回
   if (node.id) {
-    return '#' + node.id;
-  }
+    return '#' + node.id + '>';
+  } // 根据parentKey取每一级的sel进行拼接，同时缓存
+
 
   var sel = '';
 
@@ -169,7 +172,7 @@ function getFullSel(node, index, parentKey, fullCache, selCache) {
 
     for (var i = 0, len = ks.length; i < len; i++) {
       var k = ks[i];
-      var s = getLevelSel(parent.children[k], parent, pk, fullCache, selCache);
+      var s = getLevelSel(parent.childNodes[k], parent, pk, fullCache, selCache);
 
       if (s.charAt(0) === '#') {
         sel = s + '>';
@@ -178,12 +181,10 @@ function getFullSel(node, index, parentKey, fullCache, selCache) {
       }
 
       pk += ',' + k;
-      parent = parent.children[k];
+      parent = parent.childNodes[k];
     }
-  } // 最后一位本身的
+  }
 
-
-  sel += getLevelSel(node, node.parentNode, parentKey, fullCache, selCache);
   return sel;
 }
 
@@ -321,7 +322,7 @@ module.exports = {
     // 只有cb
     if (util.isFunction(time)) {
       cb = time;
-      time = undefined;
+      time = interval;
     }
 
     interval = time;
@@ -333,7 +334,7 @@ module.exports = {
     // 只有cb
     if (util.isFunction(time)) {
       cb = time;
-      time = undefined;
+      time = interval;
     }
 
     var res = this.collect();
@@ -443,7 +444,7 @@ module.exports = {
       return s;
     }
 
-    var list = s.replace(/>\d+$/).split('>');
+    var list = s.replace(/>\d+\.\d+$/, '').split('>');
     return list.map(function (item) {
       var arr = item.split('/');
       var sel = arr[0];

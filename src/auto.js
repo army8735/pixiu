@@ -9,7 +9,7 @@ let timeout; // 变更的临时引用
 let last; // 上次获取的结果的JSON.stringify暂存
 
 const IGNORE = Object.create(null);
-IGNORE.BODY
+IGNORE.HEAD
   = IGNORE.SCRIPT
   = IGNORE.STYLE
   = IGNORE.LINK
@@ -33,40 +33,38 @@ IGNORE.BODY
   = true;
 
 function traverse(node, parentKey, fullCache, selCache, res) {
-  for(let i = 0, children = node.children, len = children.length; i < len; i++) {
+  for(let i = 0, children = node.childNodes, len = children.length; i < len; i++) {
     let child = children[i];
-    let childNodes = child.childNodes;
-    if(childNodes.length === 1) {
-      let first = child.firstChild;
-      if(first.nodeType === 1) {
-        traverse(child, parentKey ? (parentKey + ',' + i) : String(i), fullCache, selCache, res);
+    if (child.nodeType === 1) {
+      if (IGNORE[child.nodeName]) {
+        continue;
       }
-      else if(first.nodeType === 3) {
-        // 去除时间日期等数字
-        let list = first.nodeValue.replace(/\d+([/:-])\d+(\1\d+)*/g, '').match(/(?:[+-]?\d*\.\d+)|(?:[+-]?\d+)|(?:\bundefined\b)|(?:\bnull\b)|(?:\bNaN\b)/g);
-        if (list && list.length) {
-          // 深度遍历取得包含数字text的dom后，计算dom的完整selector
-          let sel = getFullSel(child, i, parentKey, fullCache, selCache);
-          list.forEach((item, i) => {
-            res.push({
-              k: sel + '>' + i,
-              v: item,
-            });
-          });
-        }
-      }
-    }
-    else if(childNodes.length > 1) {
       traverse(child, parentKey ? (parentKey + ',' + i) : String(i), fullCache, selCache, res);
+    }
+    else if (child.nodeType === 3) {
+      let value = child.nodeValue;
+      // 去除时间日期等数字
+      let list = value.replace(/\d+([/:-])\d+(\1\d+)*/g, '').match(/(?:[+-]?\d*\.\d+)|(?:[+-]?\d+)|(?:\bundefined\b)|(?:\bnull\b)|(?:\bNaN\b)/g);
+      if (list && list.length) {
+        // 深度遍历取得包含数字text的dom后，计算dom的完整selector
+        let sel = getFullSel(node, child, i, parentKey, fullCache, selCache);
+        list.forEach((item, j) => {
+          res.push({
+            k: sel + i + '.' + j,
+            v: item,
+          });
+        });
+      }
     }
   }
 }
 
-function getFullSel(node, index, parentKey, fullCache, selCache) {
+function getFullSel(node, text, index, parentKey, fullCache, selCache) {
   // 有id可以提前直接返回
   if(node.id) {
-    return '#' + node.id;
+    return '#' + node.id + '>';
   }
+  // 根据parentKey取每一级的sel进行拼接，同时缓存
   let sel = '';
   if(parentKey) {
     let ks = parentKey.split(',');
@@ -75,7 +73,7 @@ function getFullSel(node, index, parentKey, fullCache, selCache) {
     // 先计算靠前的和靠根的为后续做缓存，动态规划
     for(let i = 0, len = ks.length; i < len; i++) {
       let k = ks[i];
-      let s = getLevelSel(parent.children[k], parent, pk, fullCache, selCache);
+      let s = getLevelSel(parent.childNodes[k], parent, pk, fullCache, selCache);
       if(s.charAt(0) === '#') {
         sel = s + '>';
       }
@@ -83,11 +81,9 @@ function getFullSel(node, index, parentKey, fullCache, selCache) {
         sel += s + '>';
       }
       pk += ',' + k;
-      parent = parent.children[k];
+      parent = parent.childNodes[k];
     }
   }
-  // 最后一位本身的
-  sel += getLevelSel(node, node.parentNode, parentKey, fullCache, selCache);
   return sel;
 }
 
@@ -192,7 +188,7 @@ module.exports = {
     // 只有cb
     if(util.isFunction(time)) {
       cb = time;
-      time = undefined;
+      time = interval;
     }
     interval = time;
     interval = Math.max(0, interval);
@@ -203,7 +199,7 @@ module.exports = {
     // 只有cb
     if(util.isFunction(time)) {
       cb = time;
-      time = undefined;
+      time = interval;
     }
     let res = this.collect();
     this.observe(time, cb);
