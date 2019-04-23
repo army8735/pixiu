@@ -189,6 +189,11 @@ function getFullSel(node, parentKey, selCache) {
 }
 
 function getLevelSel(node, parent, parentKey, selCache) {
+  // id直接返回
+  if (node.id) {
+    return '#' + node.id;
+  }
+
   var selList = [];
 
   for (var i = 0, children = parent.children, len = children.length; i < len; i++) {
@@ -219,11 +224,6 @@ function getNodeSel(node, key, selCache) {
   }
 
   var sel = label.encode(node.nodeName);
-
-  if (node.id) {
-    return selCache[key] = '#' + node.id;
-  }
-
   var cn = util.trim(Array.prototype.join.call(node.classList, '.'));
 
   if (cn) {
