@@ -137,7 +137,8 @@ function exec() {
 let callback = function(mutationsList) {
   if(util.isFunction(listener)) {
     let has = false;
-    for(let mutation of mutationsList) {
+    for(let i = 0, len = mutationsList.length; i < len; i++) {
+      let mutation = mutationsList[i];
       let target = mutation.target;
       if(target && !IGNORE[target.nodeName]) {
         has = true;

@@ -244,32 +244,14 @@ function exec() {
 var callback = function callback(mutationsList) {
   if (util.isFunction(listener)) {
     var has = false;
-    var _iteratorNormalCompletion = true;
-    var _didIteratorError = false;
-    var _iteratorError = undefined;
 
-    try {
-      for (var _iterator = mutationsList[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-        var mutation = _step.value;
-        var target = mutation.target;
+    for (var i = 0, len = mutationsList.length; i < len; i++) {
+      var mutation = mutationsList[i];
+      var target = mutation.target;
 
-        if (target && !IGNORE[target.nodeName]) {
-          has = true;
-          break;
-        }
-      }
-    } catch (err) {
-      _didIteratorError = true;
-      _iteratorError = err;
-    } finally {
-      try {
-        if (!_iteratorNormalCompletion && _iterator.return != null) {
-          _iterator.return();
-        }
-      } finally {
-        if (_didIteratorError) {
-          throw _iteratorError;
-        }
+      if (target && !IGNORE[target.nodeName]) {
+        has = true;
+        break;
       }
     }
 
