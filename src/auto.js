@@ -35,7 +35,7 @@ function traverse(node, parentKey, selCache, res) {
   for(let i = 0, children = node.childNodes, len = children.length; i < len; i++) {
     let child = children[i];
     if (child.nodeType === 1) {
-      if (IGNORE[child.nodeName]) {
+      if (IGNORE[child.nodeName.toUpperCase()]) {
         continue;
       }
       traverse(child, parentKey ? (parentKey + ',' + i) : String(i), selCache, res);
@@ -43,7 +43,7 @@ function traverse(node, parentKey, selCache, res) {
     else if (child.nodeType === 3) {
       let value = child.nodeValue;
       // 去除时间日期等数字
-      let list = value.replace(/\d+([/:-])\d+(\1\d+)*/g, '').match(/(?:[+-]?\d*\.\d+)|(?:[+-]?\d+)|(?:\bundefined\b)|(?:\bnull\b)|(?:\bNaN\b)/g);
+      let list = value.replace(/\d+([/:-])\d+(\1\d+)*/g, '').match(/(?:[+-]?\d+(?:,\d{3})+(?:\.\d+)?)|(?:[+-]?\d*\.\d+)|(?:[+-]?\d+)|(?:\bundefined\b)|(?:\bnull\b)|(?:\bNaN\b)/g);
       if (list && list.length) {
         // 深度遍历取得包含数字text的dom后，计算dom的完整selector
         let sel = getFullSel(node, parentKey, selCache);
@@ -117,7 +117,7 @@ function getNodeSel(node, key, selCache) {
   if(selCache[key]) {
     return selCache[key];
   }
-  let sel = label.encode(node.nodeName);
+  let sel = label.encode(node.nodeName.toUpperCase());
   let cn = util.trim(Array.prototype.join.call(node.classList, '.'));
   if(cn) {
     sel += '.' + cn;
@@ -140,7 +140,7 @@ let callback = function(mutationsList) {
     for(let i = 0, len = mutationsList.length; i < len; i++) {
       let mutation = mutationsList[i];
       let target = mutation.target;
-      if(target && !IGNORE[target.nodeName]) {
+      if(target && !IGNORE[target.nodeName.toUpperCase()]) {
         has = true;
         break;
       }

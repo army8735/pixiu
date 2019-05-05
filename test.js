@@ -126,7 +126,7 @@ function traverse(node, parentKey, selCache, res) {
     var child = children[i];
 
     if (child.nodeType === 1) {
-      if (IGNORE[child.nodeName]) {
+      if (IGNORE[child.nodeName.toUpperCase()]) {
         return "continue";
       }
 
@@ -134,7 +134,7 @@ function traverse(node, parentKey, selCache, res) {
     } else if (child.nodeType === 3) {
       var value = child.nodeValue; // 去除时间日期等数字
 
-      var list = value.replace(/\d+([/:-])\d+(\1\d+)*/g, '').match(/(?:[+-]?\d*\.\d+)|(?:[+-]?\d+)|(?:\bundefined\b)|(?:\bnull\b)|(?:\bNaN\b)/g);
+      var list = value.replace(/\d+([/:-])\d+(\1\d+)*/g, '').match(/(?:[+-]?\d+(?:,\d{3})+(?:\.\d+)?)|(?:[+-]?\d*\.\d+)|(?:[+-]?\d+)|(?:\bundefined\b)|(?:\bnull\b)|(?:\bNaN\b)/g);
 
       if (list && list.length) {
         // 深度遍历取得包含数字text的dom后，计算dom的完整selector
@@ -223,7 +223,7 @@ function getNodeSel(node, key, selCache) {
     return selCache[key];
   }
 
-  var sel = label.encode(node.nodeName);
+  var sel = label.encode(node.nodeName.toUpperCase());
   var cn = util.trim(Array.prototype.join.call(node.classList, '.'));
 
   if (cn) {
@@ -249,7 +249,7 @@ var callback = function callback(mutationsList) {
       var mutation = mutationsList[i];
       var target = mutation.target;
 
-      if (target && !IGNORE[target.nodeName]) {
+      if (target && !IGNORE[target.nodeName.toUpperCase()]) {
         has = true;
         break;
       }
