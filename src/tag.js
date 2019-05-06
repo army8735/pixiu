@@ -86,8 +86,7 @@ module.exports = {
       if(sel.charAt(0) !== '#') {
         sel = this.decode(sel.charAt(0)).toLowerCase() + sel.slice(1);
       }
-      let pseudo = arr[1].split('.');
-      return sel + ':nth-child(' + (parseInt(pseudo[0]) + 1) + ')';
+      return sel + ':nth-child(' + (parseInt(arr[1]) + 1) + ')';
     }).join('>');
   }
 };

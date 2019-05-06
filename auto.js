@@ -194,25 +194,13 @@ function getLevelSel(node, parent, parentKey, selCache) {
     return '#' + node.id;
   }
 
-  var selList = [];
-
   for (var i = 0, children = parent.children, len = children.length; i < len; i++) {
     var child = children[i];
     var key = parentKey ? parentKey + ',' + i : String(i);
-    var sel = getNodeSel(child, key, selCache); // 计算得出sel/{节点在兄弟层的索引即nth-child}.{sel在兄弟层的索引类似nth-of-type}
+    var sel = getNodeSel(child, key, selCache); // 计算得出sel/{节点在兄弟层的索引即nth-child}
 
     if (child === node) {
-      var count = 0;
-
-      for (var j = 0, _len = selList.length; j < _len; j++) {
-        if (selList[j] === sel) {
-          count++;
-        }
-      }
-
-      return sel + '/' + i + '.' + count;
-    } else {
-      selList.push(sel);
+      return sel + '/' + i;
     }
   }
 }
@@ -435,8 +423,7 @@ module.exports = {
         sel = _this.decode(sel.charAt(0)).toLowerCase() + sel.slice(1);
       }
 
-      var pseudo = arr[1].split('.');
-      return sel + ':nth-child(' + (parseInt(pseudo[0]) + 1) + ')';
+      return sel + ':nth-child(' + (parseInt(arr[1]) + 1) + ')';
     }).join('>');
   }
 };

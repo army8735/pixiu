@@ -91,23 +91,13 @@ function getLevelSel(node, parent, parentKey, selCache) {
   if (node.id) {
     return '#' + node.id;
   }
-  let selList = [];
   for(let i = 0, children = parent.children, len = children.length; i < len; i++) {
     let child = children[i];
     let key = parentKey ? (parentKey + ',' + i) : String(i);
     let sel = getNodeSel(child, key, selCache);
-    // 计算得出sel/{节点在兄弟层的索引即nth-child}.{sel在兄弟层的索引类似nth-of-type}
+    // 计算得出sel/{节点在兄弟层的索引即nth-child}
     if(child === node) {
-      let count = 0;
-      for(let j = 0, len = selList.length; j < len; j++) {
-        if(selList[j] === sel) {
-          count++;
-        }
-      }
-      return sel + '/' + i + '.' + count;
-    }
-    else {
-      selList.push(sel);
+      return sel + '/' + i;
     }
   }
 }
