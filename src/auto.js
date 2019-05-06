@@ -94,9 +94,9 @@ function getLevelSel(node, parent, parentKey, selCache) {
   for(let i = 0, children = parent.children, len = children.length; i < len; i++) {
     let child = children[i];
     let key = parentKey ? (parentKey + ',' + i) : String(i);
-    let sel = getNodeSel(child, key, selCache);
     // 计算得出sel/{节点在兄弟层的索引即nth-child}
     if(child === node) {
+      let sel = getNodeSel(child, key, selCache);
       return sel + '/' + i;
     }
   }

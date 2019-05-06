@@ -196,10 +196,10 @@ function getLevelSel(node, parent, parentKey, selCache) {
 
   for (var i = 0, children = parent.children, len = children.length; i < len; i++) {
     var child = children[i];
-    var key = parentKey ? parentKey + ',' + i : String(i);
-    var sel = getNodeSel(child, key, selCache); // 计算得出sel/{节点在兄弟层的索引即nth-child}
+    var key = parentKey ? parentKey + ',' + i : String(i); // 计算得出sel/{节点在兄弟层的索引即nth-child}
 
     if (child === node) {
+      var sel = getNodeSel(child, key, selCache);
       return sel + '/' + i;
     }
   }
